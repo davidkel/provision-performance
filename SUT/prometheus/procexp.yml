@@ -1,0 +1,9 @@
+process_names:
+  - name: "{{.Comm}}.{{.PID}}"
+    exe:
+    - orderer
+  - name: "{{.Comm}}.{{.PID}}"
+    exe:
+    - peer
+    cmdline:
+    - node start

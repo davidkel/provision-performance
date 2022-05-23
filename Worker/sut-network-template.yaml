@@ -1,0 +1,33 @@
+name: SUT
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+
+channels:
+  # channelName of mychannel matches the name of the channel created by test network
+  - channelName: ${Channel}
+    # the chaincodeIDs of all the fabric chaincodes in caliper-benchmarks
+    contracts:
+    - id: ${ChaincodeID}
+
+organizations:
+  - mspid: ${OrgMSP}
+    # Identities come from cryptogen created material for test-network
+    identities:
+      certificates:
+      - name: 'User1'
+        clientPrivateKey:
+          pem: |-
+            ${UserKey}
+        clientSignedCert:
+          pem: |-
+            ${UserPem}
+    peers:
+      - endpoint: ${PeerEndpoint}
+        grpcOptions:
+          ssl-target-name-override: ${PeerOverride}
+          grpc.keepalive_time_ms: 600000
+        tlsCACerts:
+          pem: |-
+            ${PeerCACert}
