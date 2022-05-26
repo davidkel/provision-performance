@@ -1,4 +1,5 @@
 #! /bin/bash
+#TODO:
 # launch remote workers
 # launch local workers
-# run the caliper command
+# run the launch-manager command

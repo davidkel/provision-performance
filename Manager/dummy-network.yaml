@@ -1,0 +1,36 @@
+name: SUT
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+
+channels:
+  - channelName: dummy
+    contracts:
+    - id: dummy
+
+organizations:
+  - mspid: Org1MSP
+    identities:
+      certificates:
+      - name: 'User1'
+        clientPrivateKey:
+          pem: |-
+            -----BEGIN PRIVATE KEY-----
+
+            -----END PRIVATE KEY-----
+        clientSignedCert:
+          pem: |-
+            -----BEGIN CERTIFICATE-----
+
+            -----END CERTIFICATE-----
+    peers:
+      - endpoint: any:7051
+        grpcOptions:
+          ssl-target-name-override: peer0.org1.example.com
+          grpc.keepalive_time_ms: 600000
+        tlsCACerts:
+          pem: |-
+            -----BEGIN CERTIFICATE-----
+
+            -----END CERTIFICATE-----

@@ -18,5 +18,5 @@ npm install @hyperledger/caliper-cli@0.5.0
 # only required for HSM testing
 # sudo apt install -y build-essential
 npx caliper bind --caliper-bind-sut fabric:2.4
-
+cd ..
 git clone https://github.com/davidkel/provision-performance

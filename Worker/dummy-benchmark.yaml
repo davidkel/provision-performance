@@ -1,0 +1,6 @@
+test:
+  name: dummy
+  description: >-
+    This is a dummy benchmark file for use by remote caliper workers
+  workers:
+    number: 1

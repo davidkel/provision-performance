@@ -20,4 +20,5 @@ npm install @hyperledger/caliper-cli@0.5.0
 # include this as a manager can also be a worker
 npx caliper bind --caliper-bind-sut fabric:2.4
 
+cd ..
 git clone https://github.com/davidkel/provision-performance

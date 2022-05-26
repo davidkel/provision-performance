@@ -4,10 +4,6 @@ global:
     monitor: 'devopsage-monitor'
 
 scrape_configs:
-# do we really need this ?
-  - job_name: "prometheus"
-    static_configs:
-      - targets: ["localhost:9090"]
 # sut ip address + orderer port (how many orderers ?)
   - job_name: "orderer"
     static_configs:
@@ -20,12 +16,16 @@ scrape_configs:
   - job_name: "peer0_org2"
     static_configs:
       - targets: ["localhost:9445"]
+# sut ip address
   - job_name: node
     static_configs:
       - targets: ['localhost:9100']
+# sut ip address
   - job_name: process
     static_configs:
       - targets: ['localhost:9256']
+# push gateway is local to prometheus
+# workers need to be configured through a benchmark (yuck)
   - job_name: caliper
     static_configs:
-      - targets: ['localhost:1234']
+      - targets: ['localhost:9091']

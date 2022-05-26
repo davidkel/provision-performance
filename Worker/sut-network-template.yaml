@@ -5,15 +5,12 @@ caliper:
   blockchain: fabric
 
 channels:
-  # channelName of mychannel matches the name of the channel created by test network
   - channelName: ${Channel}
-    # the chaincodeIDs of all the fabric chaincodes in caliper-benchmarks
     contracts:
     - id: ${ChaincodeID}
 
 organizations:
   - mspid: ${OrgMSP}
-    # Identities come from cryptogen created material for test-network
     identities:
       certificates:
       - name: 'User1'
