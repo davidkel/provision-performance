@@ -8,7 +8,10 @@ function read_input {
     local INPUT
     while [[ -z $INPUT ]]
     do
-      read -p "$1" INPUT
+        read -e -p "$1" INPUT
+        if [ $# -eq 2 ]; then 
+            INPUT=${INPUT:-"$2"}
+        fi
     done
     echo $INPUT
 }
@@ -41,14 +44,12 @@ function expand_template {
         sut-network-template.yaml | sed -e $'s/\\\\n/\\\n            /g'
 }
 
-# TODO: Add defaults: mychannel, fixed-asset, Org1MSP
-# TODO: Blank should be allowed for PEEROVERRIDE and thus delete the entry in the file
-# TODO: Bash completion of files would be handy as well
-CHANNEL=$(read_input "Channel: ")
-CCID=$(read_input "Chaincode name: ")
-ORGMSP=$(read_input "Org MSP: ")
+echo "Press enter if you want to use default value [default]"
+CHANNEL=$(read_input "Channel [mychannel]: " "mychannel")
+CCID=$(read_input "Chaincode name [fixed-asset]: " "fixed-asset")
+ORGMSP=$(read_input "Org MSP [Org1MSP]: " "Org1MSP")
 PEEREP=$(read_input "Peer Gateway endpoint (eg 192.168.0.60:7051): ")
-PEEROVERRIDE=$(read_input "Peer SSL Override: ")
+PEEROVERRIDE=$(read_input "Peer SSL Override (leave blank to omit): " "#ssl-target-name-override-not-set")
 file_exists "File of USER Cert: "
 USERPEM=$FILENAME
 file_exists "File of USER Key: "
@@ -56,7 +57,11 @@ USERKEY=$FILENAME
 file_exists "File of TLS CA Cert: "
 CAPEM=$FILENAME
 
-DIR="$(dirname "$(realpath "$0")")"
-echo "$(expand_template $CHANNEL $CCID $ORGMSP $USERPEM $USERKEY $PEEREP $PEEROVERRIDE $CAPEM)" > $DIR/sut-network.yaml
+if [ $PEEROVERRIDE != "#ssl-target-name-override-not-set" ]; then
+    PEEROVERRIDE="ssl-target-name-override: $PEEROVERRIDE"
+fi
 
+DIR="$(dirname "$(realpath "$0")")"
+echo "$(expand_template $CHANNEL $CCID $ORGMSP $USERPEM $USERKEY $PEEREP "$PEEROVERRIDE" $CAPEM)" > $DIR/sut-network.yaml
+ 
 echo "Network Config file sut-network.yaml created"
