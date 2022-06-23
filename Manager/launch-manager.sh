@@ -1,8 +1,4 @@
 #! /bin/bash
-# TODO (maybe):
-#   specify number of workers total or workers per vm
-#   update the benchmark file to set it to that number of workers
-#   specify a rate controller and it's parameters update the benchmark file dynamically
 
 # Print the usage message
 function printHelp() {

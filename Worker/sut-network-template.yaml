@@ -22,8 +22,8 @@ organizations:
             ${UserPem}
     peers:
       - endpoint: ${PeerEndpoint}
-        grpcOptions:
-          ssl-target-name-override: ${PeerOverride}
+        grpcOptions: 
+          ${PeerOverride}
           grpc.keepalive_time_ms: 600000
         tlsCACerts:
           pem: |-
