@@ -3,12 +3,9 @@
 function expand_template {
     sed -e "/workers:/{
         N
-        /type: \(.*\)/{
-            N
-            /number: \([0-9][0-9]*\)/{
-                s/type: .*\n/type: $1\n/
-                s/number: [0-9][0-9]*/number: $2/
-                }
+        /number: \([0-9][0-9]*\)/{
+            s/type: .*\n/type: $1\n/
+            s/number: [0-9][0-9]*/number: $1/
             }
         }" \
         $BENCHMARK_FILE | sed -e $'s/\\\\n/\\\n            /g'
@@ -42,10 +39,7 @@ function file_exists {
 echo -e "Press enter if you want to use default value [default]"
 REMOTE=$(read_input "Remote workers(y/n)[y]: " "y")
 if [ $REMOTE == "y" ]; then
-    REMOTE="remote"
     echo -e "\033[1;34mlaunch remote workers by following the tutorial here: https://github.com/davidkel/provision-performance\033[0m"
-else
-    REMOTE="local"
 fi
 WORKERS=$(read_input "Number of worker [10]: " "10")
 file_exists "Benchmark file relative path [create-asset]: " "../../caliper-benchmarks/benchmarks/api/fabric/create-asset.yaml"
@@ -53,15 +47,11 @@ BENCHMARK_FILE=$FILENAME
 
 DIR="$(dirname "$(realpath "$0")")"
 BENCHMARK=$DIR/benchmark.yaml
-echo "$(expand_template $REMOTE $WORKERS)" > $BENCHMARK
+echo "$(expand_template $WORKERS)" > $BENCHMARK
 
-if [ $REMOTE == "local" ]; then
-    pushd ../Worker
-    ./configure-network-config.sh
-    popd
+if [ $REMOTE -ne "y" ]; then
     ./launch-manager.sh $BENCHMARK -l
 else
-    echo "If you haven't done so already, start your remote caliper workers now"
     ./launch-manager.sh $BENCHMARK
 fi
 
