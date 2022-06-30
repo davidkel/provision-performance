@@ -92,7 +92,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[$interval])) * 100)",
+          "expr": "100 - (avg(irate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[$interval])) * 100)",
           "hide": false,
           "interval": "",
           "legendFormat": "",
@@ -279,7 +279,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "100 - (avg(rate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[$interval])) * 100)",
+          "expr": "100 - (avg(irate(node_cpu_seconds_total{job=\"node\",mode=\"idle\"}[$interval])) * 100)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -518,7 +518,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "sum by (groupname)(rate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
+          "expr": "sum by (groupname)(irate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{name}}",
@@ -703,7 +703,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
-          "expr": "avg by (groupname)(rate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
+          "expr": "sum by (groupname)(irate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
           "hide": false,
           "interval": "",
           "legendFormat": "{{groupname}}",

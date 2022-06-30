@@ -31,10 +31,10 @@ elif [ "$MODE" == "stop" ]; then
    cd prometheus-grafana
    docker compose down
    cd ..
-  if ["$1" == '-clean']; then
+  if [ "$1" == "-clean" ]; then
     echo "Cleaning out the prometheus and Grafana volumes"
-    docker volume rm prometheus_data
-    docker volume rm grafana_storage
+    docker volume rm prometheus-grafana_prometheus_data
+    docker volume rm prometheus-grafana_grafana_storage
   fi
 else
   printHelp
