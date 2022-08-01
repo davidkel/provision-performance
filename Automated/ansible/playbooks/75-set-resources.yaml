@@ -1,0 +1,31 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Set Peer CPUs
+  hosts: peers
+  remote_user: root
+  tasks:
+    - name: Set peer CPUs
+      shell: for (( i=1; i < {{peerActiveCPUs}}; i++ )) ; do        \
+              echo 1 > /sys/devices/system/cpu/cpu$i/online;        \
+             done;                                                  \
+                                                                    \
+             for (( i={{peerActiveCPUs}}; i < {{peerTotalCPUs}}; i++ )) ; do  \
+              echo 0 > /sys/devices/system/cpu/cpu$i/online;                  \
+             done;
+      args:
+        executable: /bin/bash
+
+- name: Set Orderer CPUs
+  hosts: orderers
+  remote_user: root
+  tasks:
+    - name: Set orderer CPUs
+      shell: for (( i=1; i < {{ordererActiveCPUs}}; i++ )) ; do     \
+              echo 1 > /sys/devices/system/cpu/cpu$i/online;        \
+             done;                                                  \
+                                                                    \
+             for (( i={{ordererActiveCPUs}}; i < {{ordererTotalCPUs}}; i++ )) ; do  \
+              echo 0 > /sys/devices/system/cpu/cpu$i/online;                        \
+             done;
+      args:
+        executable: /bin/bash

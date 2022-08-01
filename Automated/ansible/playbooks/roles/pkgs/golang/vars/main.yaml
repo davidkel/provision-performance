@@ -1,0 +1,25 @@
+go_name: 'go{{go_ver}}.{{go_platform}}'
+go_tgz: '{{go_name}}.tar.gz'
+
+# https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz
+go_tgz_url: https://dl.google.com/go/{{go_tgz}}
+go_checksum: '{{go_checksums[go_ver][go_platform]}}'
+go_dir: '{{go_parent_dir}}/{{go_name}}'
+
+# Don't need
+# go_root: '{{go_parent_dir}}/go'
+# go_path: '{{home_dir}}/gopath'
+
+go_checksums:
+  1.18.3:
+    darwin-amd64: sha256:d9dcf8fc35da54c6f259be41954783a9f4984945a855d03a003a7fd6ea4c5ca1
+    linux-amd64: sha256:956f8507b302ab0bb747613695cdae10af99bbd39a90cae522b7c0302cc27245
+  1.13.5:
+    darwin-amd64: sha256:b973bc34f146d20a168753cbc151979504bc76ddafdeae86016235911902b481
+    linux-amd64: sha256:512103d7ad296467814a6e3f635631bd35574cab3369a97a323c9a585ccaa569
+  1.11.5:
+    darwin-amd64: sha256:b970d8fdd5245193073395ce7b7775dd9deea980d4ce5e68b3b80ee9edcf2afc
+    linux-amd64: sha256:ff54aafedff961eb94792487e827515da683d61a5f9482f668008832631e5d25
+  1.10.8:
+    darwin-amd64: sha256:f41bc914a721ac98a187df824b3b40f0a7f35bfb3c6d31221bdd940d537d3c28
+    linux-amd64: sha256:d8626fb6f9a3ab397d88c483b576be41fa81eefcec2fd18562c87626dbb3c39e

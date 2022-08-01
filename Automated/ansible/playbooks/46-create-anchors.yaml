@@ -1,0 +1,26 @@
+  - name: Create anchor peers
+    hosts: client0
+    remote_user: root
+
+    roles:
+    - util/orgvars
+
+    vars:
+      first_orderer_org: '{{ orgvars_ordererOrgsList | first }}'
+      first_orderer: '{{ groups[first_orderer_org] | first }}'
+
+    tasks:
+      - name: Create anchor peer for {{ peer_org }} on channel {{ channelID }}
+        include_tasks: ./includes/create-anchor-peer.yaml
+        loop: '{{ channelIDsList | product(orgvars_peerOrgsList) | list }}'
+        vars:
+          channelID: '{{ item[0] }}'
+          peer_org: '{{ item[1] }}'
+          peer_name: '{{ groups[peer_org] | first }}'
+
+
+  # when: 'hostvars[peer_name].is_anchor is defined and hostvars[peer_name].is_anchor == True'
+#  retries: 3
+#  delay: 3
+#  register: result
+#  until: result.rc == 0

@@ -1,0 +1,3 @@
+orderer_org: '{{ group_names | difference("orderers") | first }}'
+orderer_name: '{{ inventory_hostname }}'
+orderer_host: '{{ inventory_hostname }}' # because docker containers

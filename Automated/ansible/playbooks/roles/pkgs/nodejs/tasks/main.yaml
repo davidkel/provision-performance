@@ -1,0 +1,25 @@
+- name: Check if already installed.
+  become: root
+  become_flags: -H
+  shell: "node --version"
+  register: node_version_check
+  ignore_errors: true
+
+- name: If installation doesn't already exist, install now.
+  when: node_version_check.rc != 0
+  become: root
+  block:
+    - name: Add NodeSource's GPG key
+      apt_key:
+          url: '{{nodesource_gpg_key_url}}'
+          state: present
+
+    - name: Add nodejs repository
+      apt_repository:
+        repo: deb https://deb.nodesource.com/{{node_version}} {{ansible_distribution_release}} main
+        state: present
+
+    - name: Install Node
+      apt:
+        name: nodejs
+        state: present

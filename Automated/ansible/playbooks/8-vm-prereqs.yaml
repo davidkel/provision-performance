@@ -1,0 +1,56 @@
+#!/usr/bin/env ansible-playbook
+
+- name: create and authorize ssh keys
+  hosts: all
+  remote_user: root
+  gather_facts: false
+  tasks:
+    - name: Add ssh key to authorized_keys file (fails if you don't already have ~/.ssh/id_rsa.pub generated locally)
+      authorized_key:
+          user: root
+          state: present
+          key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: Add domain names of all hosts to all hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '[ \t]+{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        unsafe_writes: yes
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.all }}"
+
+    - name: Ensure bashrc gets read even in non interactive sessions # important to load environment variables on remote
+      replace:
+        path: '/root/.bashrc'
+        regexp: '^\[ -z ".PS1" \] && return$'
+        replace: '# [ -z "$PS1" ] && return'
+
+    - name: Generate ssh keys for each host
+      shell: ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N "" 0>-
+      ignore_errors: true
+      # 0>- closes the input stream. Helps when the key already exists. But it'll end in error, so ignoring that.
+
+    - name: Fetch ssh keys from remote to local
+      fetch:
+        src: /root/.ssh/id_rsa.pub
+        dest: /tmp/.ssh-keys/{{inventory_hostname}}-id_rsa.pub
+        flat: yes
+
+    - name: Concat the ssh keys into a block
+      set_fact:
+        ssh_keys: "{{ (ssh_keys | default('')) + '\n' + lookup('file', item) + '\n' }}"
+      with_fileglob: "/tmp/.ssh-keys/*-id_rsa.pub"
+
+    - name: Add the ssh keys block in each host's authorized_key
+      blockinfile:
+        dest: /root/.ssh/authorized_keys
+        block: "{{ ssh_keys }}"
+        state: present
+
+    - name: Add LOCALE to all nodes
+      blockinfile:
+        dest: /root/.profile
+        block: "export LC_ALL=C"
+        state: present

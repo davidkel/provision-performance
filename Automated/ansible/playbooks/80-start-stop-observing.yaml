@@ -1,0 +1,92 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Control node monitoring
+  hosts: peers:orderers:clients
+  remote_user: root
+  tasks:
+    - name: Stop node exporter
+      shell: tmux kill-session -t 'monitoring';
+      when: "'monitstop' in plays"
+      ignore_errors: true
+
+    - name: Start node exporter
+      shell: tmux new -s 'monitoring' -d './node_exporter'
+      args:
+        chdir:  '/root/go/bin'
+      when: "'monitstart'in plays"
+
+# TODO: Add process exporter
+
+#- name: Control nmon monitoring
+#  hosts: all
+#  remote_user: root
+#  tasks:
+#    - name: Stop nmon monitoring
+#      become: root
+#      when: "'monitstop' in plays"
+#      shell: pkill nmon || echo foo
+
+#    - name: Remove old nmon files
+#      become: root
+#      when: "'monitstart'in plays"
+#      shell: rm *.nmon || echo ok
+#      args:
+#        chdir: /root
+
+#    - name: Start nmon monitoring
+#      become: root
+#      when: "'monitstart'in plays"
+#      shell: nmon -f -s 1 -c 5000
+#      args:
+#        chdir: /root
+
+- name: Control prometheus server
+  hosts: client0
+  remote_user: root
+  tasks:
+    - name: Stop the prometheus server
+      when: "'serverstop' in plays"
+      docker_container:
+        name: prometheus_monit
+        image: prom/prometheus:v2.32.1
+        state: absent
+
+    - name: Ensure prometheus data folder is empty
+      include_role:
+        name: util/ensure_empty_folder
+      vars:
+        path: /root/prometheus-data
+      when: "'serverstart' in plays"
+  # TODO: Stop the grafana server
+
+# unfortunately this won't work in the docker deployment as the volume mounts use the host filesystem and not
+# the container filesystem (as the daemon used is the host daemon), also the network specified is not correct
+# as they need to use the docker network not the host network (which is what a VM would need)
+# possible solns would be
+# 1. maybe have a /root/.../ subdir and ensure the files are on the host file system and have a variable to control the network
+# 2. run these natively
+# 3. try true DinD
+    - name: Start the prometheus server
+      when: "'serverstart'in plays"
+      shell: docker run -d --user root                                         \
+                -v /root/prometheus.yml:/etc/prometheus/prometheus.yml         \
+                -v /root/prometheus-data:/prometheus                           \
+               --network host                                                  \
+               --name prometheus_monit                                         \
+               prom/prometheus:v2.32.1
+
+    - name: Start grafana
+      when: "'serverstart'in plays"
+      shell: docker run -d --user root                                         \
+                -v /root/grafana/provisioning:/etc/grafana/provisioning        \
+                -v /root/grafana-data:/var/lib/grafana                         \
+                -e "GF_SECURITY_ADMIN_PASSWORD=admin"                          \
+                -e "GF_USERS_ALLOW_SIGN_UP=false"                              \
+               --network host                                                  \
+               --name grafana_monit                                            \
+               grafana/grafana:8.3.4
+
+
+
+
+

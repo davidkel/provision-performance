@@ -1,0 +1,45 @@
+#!/usr/bin/env ansible-playbook
+#
+#
+- name: Shut down peers and orderers after running
+  hosts: peers:orderers
+  remote_user: root
+  tasks:
+    - name: Stop peers and orderers etc
+      shell: pkill tmux;
+      when: "'monitstop' in plays"
+      ignore_errors: true
+
+# TODO: this might not be the right solution, how to clean a peer/orderer if you want a clean restart ?
+- name: Clean the storage
+  hosts: all
+  remote_user: root
+  tasks:
+
+#    - name: Remove the ledgerData directory
+#      file:
+#        path: /var/hyperledger
+#        state: absent
+      # ignore_errors: true # since "zookeepers" and "orderers" etc may be overloaded on the same machine,
+      #                     # deletes may fail at times due to race conditions.
+
+    - name: Remove the peer log files
+      file:
+        path: /root/peer.log
+        state: absent
+    - name: Remove the orderer log files
+      file:
+        path: /root/orderer.log
+        state: absent
+
+- name: Spin up orderers
+  hosts: orderers
+  remote_user: root
+  roles:
+    - role: orderer
+
+- name: Spin up peers
+  hosts: peers
+  remote_user: root
+  roles:
+    - role: peer

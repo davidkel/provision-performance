@@ -1,0 +1,255 @@
+#jinja2: lstrip_blocks: True
+{#
+    Template variables:
+    -> orgvars_ordererOrgs:  map from ordererOrg name to list of orderers of that org
+    -> orgvars_peerOrgs:     map from peerOrg name to list of peers of that org
+    -> orderers:             list of all orderers
+    -> block_cut_time:       defaults to 1s. This is the block cut time.
+    -> t_block_size:           defaults to 50. Number of max transactions in the block.
+    -> t_preferred_max_bytes:  defaults to '512 KB'. Preferred byte size of block body.
+    -> abs_max_bytes:        defaults to '99 MB'. Max byte size of the block body.
+    -> orderer_type:         defaults to 'etcdraft'. Can be set to 'etcdraft' | 'solo'
+#}
+################################################################################
+# Organizations
+################################################################################
+Organizations:
+
+    # orderer orgs
+
+{% for ordererOrg in orgvars_ordererOrgs %}
+    - &{{ ordererOrg }}
+        Name: {{ ordererOrg }}
+        ID: {{ ordererOrg }}MSP
+        MSPDir: crypto-config/ordererOrganizations/{{ ordererOrg }}/msp/
+        #AdminPrincipal: Role.MEMBER
+        Policies:
+            Readers:
+                Type: ImplicitMeta
+                Rule: "ANY Readers"
+            Writers:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+            Admins:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Admins"
+            Endorsement:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Endorsement"
+        OrdererEndpoints:
+        {% for orderer in orderers %}
+            - {{hostvars[orderer].ansible_host}}:7050
+        {% endfor %}
+
+{% endfor %}
+
+    # peer orgs
+
+{% for peerOrg in orgvars_peerOrgs %}
+    - &{{ peerOrg }}
+        Name: {{ peerOrg }}MSP
+        ID: {{ peerOrg }}MSP
+        MSPDir: crypto-config/peerOrganizations/{{ peerOrg }}/msp/
+        Policies:
+            Readers:
+                Type: ImplicitMeta
+                Rule: "ANY Readers"
+            Writers:
+                Type: ImplicitMeta
+                Rule: "ANY Writers"
+            Admins:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Admins"
+            Endorsement:
+                Type: ImplicitMeta
+                Rule: "MAJORITY Endorsement"
+{% endfor %}
+
+
+################################################################################
+# Orderer
+################################################################################
+Orderer: &OrdererDefaults
+    OrdererType: {{ orderer_type | default('etcdraft')}}
+
+#    Addresses:
+#    {% for orderer in orderers %}
+#        - {{hostvars[orderer].ansible_host}}:7050
+#    {% endfor %}
+
+    BatchTimeout: {{ block_cut_time | default('1s') }}
+    BatchSize:
+        MaxMessageCount: {{ t_block_size }}
+        AbsoluteMaxBytes: {{ abs_max_bytes | default('99 MB') }}
+        PreferredMaxBytes: {{ t_preferred_max_bytes }}
+
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        # BlockValidation specifies what signatures must be included in the block
+        # from the orderer for the peer to validate it.
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+    EtcdRaft:
+        Consenters:
+        {% for etcdraft in (orderers | default([])) %}
+        {% set ordererOrg = hostvars[etcdraft].group_names | difference("orderers") | first %}
+            - Host: {{ hostvars[etcdraft].ansible_host }}
+              Port: 7050
+              ClientTLSCert: crypto-config/ordererOrganizations/{{ ordererOrg }}/orderers/{{ etcdraft }}/tls/server.crt
+              ServerTLSCert: crypto-config/ordererOrganizations/{{ ordererOrg }}/orderers/{{ etcdraft }}/tls/server.crt
+        {% endfor %}
+
+        # Options to be specified for all the etcd/raft nodes. The values here
+        # are the defaults for all new channels and can be modified on a
+        # per-channel basis via configuration updates.
+        Options:
+            # TickInterval is the time interval between two Node.Tick invocations.
+            TickInterval: 500ms
+
+            # ElectionTick is the number of Node.Tick invocations that must pass
+            # between elections. That is, if a follower does not receive any
+            # message from the leader of current term before ElectionTick has
+            # elapsed, it will become candidate and start an election.
+            # ElectionTick must be greater than HeartbeatTick.
+            ElectionTick: 10
+
+            # HeartbeatTick is the number of Node.Tick invocations that must
+            # pass between heartbeats. That is, a leader sends heartbeat
+            # messages to maintain its leadership every HeartbeatTick ticks.
+            HeartbeatTick: 1
+
+            # MaxInflightBlocks limits the max number of in-flight append messages
+            # during optimistic replication phase.
+            MaxInflightBlocks: 5
+
+            # SnapshotIntervalSize defines number of bytes per which a snapshot is taken
+            SnapshotIntervalSize: 20 MB
+
+
+################################################################################
+#
+#   CAPABILITIES
+#
+#   This section defines the capabilities of fabric network. This is a new
+#   concept as of v1.1.0 and should not be utilized in mixed networks with
+#   v1.0.x peers and orderers.  Capabilities define features which must be
+#   present in a fabric binary for that binary to safely participate in the
+#   fabric network.  For instance, if a new MSP type is added, newer binaries
+#   might recognize and validate the signatures from this type, while older
+#   binaries without this support would be unable to validate those
+#   transactions.  This could lead to different versions of the fabric binaries
+#   having different world states.  Instead, defining a capability for a channel
+#   informs those binaries without this capability that they must cease
+#   processing transactions until they have been upgraded.  For v1.0.x if any
+#   capabilities are defined (including a map with all capabilities turned off)
+#   then the v1.0.x peer will deliberately crash.
+#
+################################################################################
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+
+    Orderer: &OrdererCapabilities
+        V2_0: true
+
+    Application: &ApplicationCapabilities
+        # stick to the old lifecycle for now
+        V1_4_2: true
+
+
+################################################################################
+#
+#   APPLICATION
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application-related parameters.
+#
+################################################################################
+Application: &ApplicationDefaults
+    # Organizations lists the orgs participating on the application side of the
+    # network.
+    Organizations:
+
+    # Policies defines the set of policies at this level of the config tree
+    # For Application policies, their canonical path is
+    #   /Channel/Application/<PolicyName>
+    Policies: &ApplicationDefaultPolicies
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+
+    # Capabilities describes the application level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Channel: &ChannelDefaults
+    # Policies defines the set of policies at this level of the config tree
+    # For Channel policies, their canonical path is
+    #   /Channel/<PolicyName>
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+
+    # Capabilities describes the channel level capabilities, see the
+    # dedicated Capabilities section elsewhere in this file for a full
+    # description
+    Capabilities:
+        <<: *ChannelCapabilities
+
+################################################################################
+# Profiles - we have only one profile in this template.
+################################################################################
+Profiles:
+
+    Channel:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+            {% for ordererOrg in orgvars_ordererOrgs %}
+                - *{{ ordererOrg }}
+            {% endfor %}
+            Capabilities: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+            {% for peerOrg in orgvars_peerOrgs %}
+                - *{{ peerOrg }}
+            {% endfor %}
+            Capabilities: *ApplicationCapabilities
+

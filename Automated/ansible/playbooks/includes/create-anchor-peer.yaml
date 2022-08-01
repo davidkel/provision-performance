@@ -1,0 +1,74 @@
+# Not idemopotent as it will fail if already added
+
+- name: fetch channel config
+  shell: |
+    ./peer channel fetch config /root/channel-artifacts/{{ channelID }}/{{ peer_org }}config_block.pb -o {{hostvars[first_orderer].ansible_host}}:7050 -c {{ channelID }} --tls --cafile /root/crypto-config/ordererOrganizations/{{first_orderer_org}}/tlsca/tlsca.{{first_orderer_org}}-cert.pem
+    ./configtxlator proto_decode --input /root/channel-artifacts/{{ channelID }}/{{ peer_org }}config_block.pb --type common.Block --output /root/channel-artifacts/{{ channelID }}/{{ peer_org }}config_block.json
+    jq .data.data[0].payload.data.config /root/channel-artifacts/{{ channelID }}/{{ peer_org }}config_block.json > /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_config.json
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+  # temporary skip code
+  # when: create_file is defined and create_file == '1'
+
+- name: modify channel config
+  shell: >
+    jq '.channel_group.groups.Application.groups.'${CORE_PEER_LOCALMSPID}'.values += {"AnchorPeers":{"mod_policy": "Admins", "value":{"anchor_peers": [{"host": "{{ hostvars[peer_name].ansible_host }}", "port": '7051'}]}, "version": "0"}}' /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_config.json > /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_modified_config.json
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+  # temporary skip code
+  # when: create_file is defined and create_file == '1'
+
+- name: generate channel config update
+  shell: |
+    ./configtxlator proto_encode --input "/root/channel-artifacts/{{ channelID }}/{{ peer_org }}_config.json" --type common.Config --output /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_original_config.pb
+    ./configtxlator proto_encode --input "/root/channel-artifacts/{{ channelID }}/{{ peer_org }}_modified_config.json" --type common.Config --output /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_modified_config.pb
+    ./configtxlator compute_update --channel_id "{{ channelID }}" --original /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_original_config.pb --updated /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_modified_config.pb --output /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config.pb
+    ./configtxlator proto_decode --input "/root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config.pb" --type common.ConfigUpdate --output /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config.json
+    echo '{"payload":{"header":{"channel_header":{"channel_id":"'{{ channelID }}'", "type":2}},"data":{"config_update":'$(cat /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config.json)'}}}' | jq . > /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config_in_envelope.json
+    ./configtxlator proto_encode --input "/root/channel-artifacts/{{ channelID }}/{{ peer_org }}_update_config_in_envelope.json" --type common.Envelope --output "/root/channel-artifacts/{{ channelID }}/{{ peer_org }}_anchor.tx"
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+
+- name: submit channel config update
+  shell: >-
+    ./peer channel update -o {{hostvars[first_orderer].ansible_host}}:7050 -c {{ channelID }}
+    -f /root/channel-artifacts/{{ channelID }}/{{ peer_org }}_anchor.tx --tls
+    --cafile /root/crypto-config/ordererOrganizations/{{first_orderer_org}}/tlsca/tlsca.{{first_orderer_org}}-cert.pem
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt

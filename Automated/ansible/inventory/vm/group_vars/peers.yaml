@@ -1,0 +1,3 @@
+peer_org: '{{ group_names | difference("peers") | first }}'
+peer_name: '{{ inventory_hostname }}'
+peer_host: '{{ inventory_hostname }}' # because docker containers

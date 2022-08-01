@@ -1,0 +1,113 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: client0:peers    # only client0 need these variables
+  remote_user: root
+  roles:
+    - util/orgvars
+
+- name: Install chaincode
+  hosts: peers
+  remote_user: root
+
+  tasks:
+    - name: Retrieve current installed chaincode list
+      command: ./peer chaincode list --installed
+      args:
+        chdir: '{{ dltDest }}/build/bin'
+      environment:
+          FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+          CORE_PEER_ADDRESS: '{{peer_host}}:7051'
+          CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+          CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+          CORE_PEER_TLS_ENABLED: "true"
+          CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+          CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+          CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+      register: chaincode_list
+      failed_when: False
+      changed_when: False
+
+    - name: Determine if peer has chaincode installed
+      set_fact:
+        contract_installed: "{{ chaincode_list.stdout | join('') is search('Name: ' ~ ccName ~ ', Version: ' ~ ccVersion ~ ',') }}"
+
+    - name: Install chaincode
+      shell: >-
+        ./peer chaincode install -n {{ccName}} -v {{ccVersion}} -p {{ccPath}}
+      args:
+        chdir: '{{ dltDest }}/build/bin'
+      environment:
+          FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+          CORE_PEER_ADDRESS: '{{peer_host}}:7051'
+          CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+          CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+          CORE_PEER_TLS_ENABLED: "true"
+          CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+          CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+          CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+      # TODO: retry should also perform the check to see if it is installed
+      retries: 3
+      delay: 3
+      register: result
+      until: result.rc == 0
+      when: not contract_installed
+      # temporary skip code as install will fail if already installed
+      # when: create_file is defined and create_file == '1'
+
+- name: Instantiate chaincode
+  hosts: client0
+  remote_user: root
+
+  vars:
+    first_orderer_org: '{{ orgvars_ordererOrgsList | first }}'
+    first_orderer: '{{ groups[first_orderer_org] | first }}'
+
+    first_peer_org: '{{ orgvars_peerOrgsList | first }}'
+    first_peer: '{{ groups[first_peer_org] | first }}'
+
+    channelPeerAllocJ: '{{ channelPeerAlloc }}'
+
+  tasks:
+    - name: Instantiate or upgrade chaincode
+      include_tasks: ./includes/instantiate-chaincode.yaml
+      loop: '{{ channelIDsList }}'
+      vars:
+        channelID: '{{ item }}'
+        peer_org: '{{ hostvars[peer_name].group_names | difference("peers") | first }}'
+        peer_name: '{{ first_peer if channelPeerAllocJ == "all" or channelPeerAllocJ[item] == "all" else (channelPeerAllocJ[item]|first) }}'
+
+# TODO: retries don't work across included tasks
+#      retries: 3
+#      delay: 3
+#      register: result
+#      until: result.rc == 0
+
+- name: Query chaincode
+  hosts: peers
+  remote_user: root
+
+  vars:
+    channelPeerAllocJ: '{{ channelPeerAlloc }}'
+
+  tasks:
+    - name: Query chaincode
+      shell: >-
+        ./peer chaincode query -C {{item}} -c '{{ccQueryArgs}}' -n {{ccName}}
+      args:
+        chdir: '{{ dltDest }}/build/bin'
+      environment:
+          FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+          CORE_PEER_ADDRESS: '{{peer_host}}:7051'
+          CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+          CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+          CORE_PEER_TLS_ENABLED: "true"
+          CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+          CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+          CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+      loop: '{{ channelIDsList }}'
+      retries: 5
+      delay: 3
+      register: result
+      until: result.rc == 0
+      when: 'channelPeerAllocJ == "all" or channelPeerAllocJ[item] == "all" or peer_name in channelPeerAllocJ[item]'

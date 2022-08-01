@@ -1,0 +1,77 @@
+#!/usr/bin/env ansible-playbook
+
+# TODO: This will have a pre-req of caliper-benchmarks deployed already (25-checkout-benchmarks), is there a better way to do this ? do 2 separate checkouts
+# 1 here for the benchmark support and another for the chaincode deployment means this can run as a standalone playbook. The only issue will be getting
+# access to the required certs for sut_network file generation
+
+# TODO: currently clients, may want to be more explicit in future
+- name: Deploy caliper to clients
+  hosts: clients
+
+  tasks:
+  - name: Install caliper cli to {{ benchDest }}
+    npm:
+      name: '@hyperledger/caliper-cli'
+      version: '0.5.0'
+      path: '{{ benchDest }}'
+      production: yes
+
+  - name: Install grpc-js to {{ benchDest }}
+    npm:
+      name: '@grpc/grpc-js'
+      version: '1.6.7'
+      path: '{{ benchDest }}'
+      production: yes
+
+  - name: Install thin node client to {{ benchDest }}
+    npm:
+      name: '@hyperledger/fabric-gateway'
+      version: '1.1.0'
+      path: '{{ benchDest }}'
+      production: yes
+
+
+# TODO: Deploy mosquitto to caliper manager client
+
+- name: copy useful files to manager and worker
+  hosts: clients
+  remote_user: root
+  roles:
+    - util/orgvars
+
+  tasks:
+  - name: create Manager directory
+    file:
+      path: /root/Manager
+      state: directory
+      mode: '0755'
+    when: 'inventory_hostname == "client0"'
+
+  - name: copy Manager files
+    copy:
+      src: ./static-files/Manager
+      dest: /root
+      mode: preserve
+    when: 'inventory_hostname == "client0"'
+
+  - name: create Worker directory
+    file:
+      path: /root/Worker
+      state: directory
+      mode: '0755'
+
+  - name: copy Worker files
+    copy:
+      src: ./static-files/Worker
+      dest: /root
+      mode: preserve
+
+  - name: Generate SUT Network file
+    vars:
+      first_peer_org: '{{ orgvars_peerOrgsList | first }}'
+      first_peer: '{{ groups[first_peer_org] | first }}'
+
+    template:
+      dest: /root/Worker/sut-network.yaml
+      src: ./templates/sut-network.yaml.j2
+

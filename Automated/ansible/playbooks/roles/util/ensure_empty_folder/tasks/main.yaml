@@ -1,0 +1,9 @@
+- name: Create folder {{path}}
+  file:
+    path: '{{path}}'
+    state: directory
+
+- name: Delete contents of folder {{path}}
+  shell: rm -rf {{path}}/*
+  args:
+    warn: false

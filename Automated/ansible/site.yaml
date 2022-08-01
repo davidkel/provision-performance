@@ -1,0 +1,35 @@
+#!/usr/bin/env ansible-playbook
+- import_playbook: playbooks/5-docker-prereqs.yaml
+  when: 'plays=="all" or ("docker" in plays)'
+
+- import_playbook: playbooks/10-prereqs.yaml
+  when: 'plays=="all" or ("prereqs" in plays)'
+
+- import_playbook: playbooks/20-checkout-and-build.yaml
+  when: 'plays=="all" or ("checkoutdlt" in plays)'
+
+- import_playbook: playbooks/25-checkout-benchmarks.yaml
+  when: 'plays=="all" or ("checkoutbench" in plays)'
+
+- import_playbook: playbooks/30-generate-crypto.yaml
+  when: 'plays=="all" or ("gencrypto" in plays)'
+
+- import_playbook: playbooks/35-generate-channel.yaml
+  when: 'plays=="all" or ("genchan" in plays)'
+
+- import_playbook: playbooks/40-restart-nodes.yaml
+  when: 'plays=="all" or ("downnodes" in plays or "upnodes" in plays)'
+
+- import_playbook: playbooks/45-create-channels.yaml
+  when: 'plays=="all" or ("createchan" in plays)'
+
+- import_playbook: playbooks/46-create-anchors.yaml
+  when: 'plays=="all" or ("createanch" in plays)'
+
+- import_playbook: playbooks/50-lscc-deploy-chaincode.yaml
+  when: 'plays=="all" or ("installcc" in plays)'
+
+- import_playbook: playbooks/60-deploy-prometheus.yaml
+
+- import_playbook: playbooks/70-deploy-caliper.yaml
+  when: 'plays=="all" or ("installcc" in plays)'

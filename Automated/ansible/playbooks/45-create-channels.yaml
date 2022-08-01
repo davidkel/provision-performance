@@ -1,0 +1,75 @@
+#!/usr/bin/env ansible-playbook
+# TODO: This is not idempotent. Once joined we shouldn't have to join again, state absent should unjoin
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: clients:peers:orderers    # only clients need these variables
+  remote_user: root
+
+  roles:
+    - util/orgvars
+
+- name: Copy the channel artifacts to peers and orderers (required to join channels)
+  hosts: client0:peers:orderers # required as the copy checks which group the current host is in, ie this defines the target, not the source
+  remote_user: root
+
+  tasks:
+    - name: perform copy from 'client0' to peers and orderers
+      include_role:
+        name: util/copy_remote_to_remotes
+      vars:
+        src: /root/channel-artifacts
+        src_hostname: 'client0'
+        dest_groups: [peers, orderers]
+
+- name: Join each orderer to the channel(s)
+  hosts: orderers
+  remote_user: root
+
+  vars:
+      channelOrdererAllocJ: '{{ channelOrdererAlloc }}' # this converts it to a dict if it's a json string. life is funny.
+
+  tasks:
+    - name: Join orderer to channel(s)
+      shell: >-
+        ./osnadmin channel join --channelID {{ item }} --config-block /root/channel-artifacts/{{ item }}/channel.block -o {{orderer_host}}:7053
+        --ca-file /root/crypto-config/ordererOrganizations/{{ orderer_org }}/tlsca/tlsca.{{ orderer_org }}-cert.pem
+        --client-cert /root/crypto-config/ordererOrganizations/{{ orderer_org }}/orderers/{{ orderer_name }}/tls/server.crt
+        --client-key /root/crypto-config/ordererOrganizations/{{ orderer_org }}/orderers/{{ orderer_name }}/tls/server.key
+
+      args:
+        chdir:  '{{ dltDest }}/build/bin'
+      loop: '{{ channelIDsList }}'
+      retries: 3
+      delay: 3
+      register: result
+      until: result.rc == 0
+      when: 'channelOrdererAllocJ == "all" or channelOrdererAllocJ[item] == "all" or orderer_name in channelOrdererAllocJ[item]'
+
+- name: Join each peer to the channel(s)
+  hosts: peers
+  remote_user: root
+
+  environment:
+    FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+    CORE_PEER_ADDRESS: '{{peer_host}}:7051'
+    CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+    CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+    CORE_PEER_TLS_ENABLED: "true"
+    CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+    CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+    CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+
+  vars:
+      channelPeerAllocJ: '{{ channelPeerAlloc }}' # this converts it to a dict if it's a json string. life is funny.
+  tasks:
+    - name: Join each channel
+      shell: ./peer channel join -b /root/channel-artifacts/{{item}}/channel.block
+      args:
+        chdir:  '{{ dltDest }}/build/bin'
+      loop: '{{ channelIDsList }}'
+      retries: 3
+      delay: 3
+      register: result
+      until: result.rc == 0
+      when: 'channelPeerAllocJ == "all" or channelPeerAllocJ[item] == "all" or peer_name in channelPeerAllocJ[item]'
+

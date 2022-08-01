@@ -1,0 +1,28 @@
+- name: Collect orderer org names
+  set_fact:
+    orgvars_ordererOrgsList: "{{ (orgvars_ordererOrgsList | default([]) + hostvars[item].group_names) | difference('orderers') }}"
+  with_items: "{{ groups['orderers'] }}"
+  # See https://stackoverflow.com/a/49484752/975271 for above. It just collects the sub groups of the 'orderers' group.
+
+- name: Create dict from [ordererOrgName] => [ orderers_in_this_org ]
+  set_fact:
+    orgvars_ordererOrgs: "{{ (orgvars_ordererOrgs | default({})) | combine( {item: groups[item]} ) }}"
+  with_items: "{{ orgvars_ordererOrgsList }}"
+  # See https://stackoverflow.com/a/35608380/975271 for above. It creates a dict from ordererOrgName to list of its orderers.
+
+- name: Collect peer org names
+  set_fact:
+    orgvars_peerOrgsList: "{{ (orgvars_peerOrgsList | default([]) + hostvars[item].group_names) | difference('peers') }}"
+  with_items: "{{ groups['peers'] }}"
+  # See https://stackoverflow.com/a/49484752/975271 for above. It just collects the sub groups of the 'peers' group.
+
+- name: Create dict from [peerOrgName] => [ peers_in_this_org ]
+  set_fact:
+    orgvars_peerOrgs: "{{ (orgvars_peerOrgs | default({})) | combine( {item: groups[item]} ) }}"
+  with_items: "{{ orgvars_peerOrgsList }}"
+  # See https://stackoverflow.com/a/35608380/975271 for above. It creates a dict from peerOrgName to list of its peers.
+
+- name: Set orgvars_myOrg var for peers and orderers
+  set_fact:
+    orgvars_myOrg: "{{ group_names | difference(['orderers', 'peers']) | first }}"
+  when: 'inventory_hostname in groups["orderers"] + groups["peers"]'

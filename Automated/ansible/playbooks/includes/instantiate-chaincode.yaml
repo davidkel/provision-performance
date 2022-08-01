@@ -1,0 +1,64 @@
+- name: Retrieve currently instantiated chaincode on channel {{ item }}
+  command: ./peer chaincode list --instantiated -C {{ item }}
+  args:
+    chdir: '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+  register: chaincode_list
+  failed_when: False
+  changed_when: False
+
+- name: output var
+  debug:
+    msg: "The 'foo' variable value is {{chaincode_list }}"
+
+- name: Determine if channel has chaincode instantiated at correct version
+  set_fact:
+    contract_instantiated: "{{ chaincode_list.stdout | join('') is search('Name: ' ~ ccName ~ ', Version: ' ~ ccVersion ~ ',') }}"
+
+- name: Determine if channel has chaincode instantiated at any version
+  set_fact:
+    contract_instantiated_anyversion: "{{ chaincode_list.stdout | join('') is search('Name: ' ~ ccName ~ ',') }}"
+
+- name: Instantiate chaincode on channel {{ item }}
+  shell: >-
+    ./peer chaincode instantiate -o {{hostvars[first_orderer].ansible_host}}:7050 -C {{ item }}
+    -n {{ccName}} -v {{ccVersion}} -c '{{ccInitArgs}}' -P '{{endorsementPolicy}}'
+    --tls true --cafile /root/crypto-config/ordererOrganizations/{{first_orderer_org}}/tlsca/tlsca.{{first_orderer_org}}-cert.pem
+  args:
+    chdir: '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+  when: (not contract_instantiated) and (not contract_instantiated_anyversion)
+
+- name: Upgrade chaincode on channel {{ item }}
+  shell: >-
+    ./peer chaincode upgrade -o {{hostvars[first_orderer].ansible_host}}:7050 -C {{ item }}
+    -n {{ccName}} -v {{ccVersion}} -c '{{ccInitArgs}}' -P '{{endorsementPolicy}}'
+    --tls true --cafile /root/crypto-config/ordererOrganizations/{{first_orderer_org}}/tlsca/tlsca.{{first_orderer_org}}-cert.pem
+  args:
+    chdir: '{{ dltDest }}/build/bin'
+  environment:
+      FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+      CORE_PEER_ADDRESS: '{{ hostvars[peer_name].ansible_host }}:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+      CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+      CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+      CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+  when: (not contract_instantiated) and contract_instantiated_anyversion

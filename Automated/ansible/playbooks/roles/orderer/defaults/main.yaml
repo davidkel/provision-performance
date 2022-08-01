@@ -1,0 +1,8 @@
+__orderer_org: '{{ group_names | difference("orderers") | first }}'
+__orderer_name: '{{ inventory_hostname }}'
+
+orderer_mspid: '{{ __orderer_org }}MSP'
+orderer_mspdir: /root/crypto-config/ordererOrganizations/{{__orderer_org}}/orderers/{{ __orderer_name }}/msp/
+orderer_tls_privkey: /root/crypto-config/ordererOrganizations/{{__orderer_org}}/orderers/{{ __orderer_name }}/tls/server.key
+orderer_tls_cert: /root/crypto-config/ordererOrganizations/{{__orderer_org}}/orderers/{{ __orderer_name }}/tls/server.crt
+orderer_tls_rootcas: /root/crypto-config/ordererOrganizations/{{__orderer_org}}/orderers/{{ __orderer_name }}/tls/ca.crt

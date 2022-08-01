@@ -1,0 +1,20 @@
+all:
+    children:
+        peers:
+            children:
+                # this is the MSP id and represents an org
+                peerOrg0:
+                    hosts:
+                        peer0: { ansible_host: peer0}
+                        peer1: { ansible_host: peer1 }
+                peerOrg1:
+                    hosts:
+                        peer2: { ansible_host: peer2 }
+        orderers:
+            children:
+                ordererOrg0:
+                    hosts:
+                        orderer0: { ansible_host: orderer0 }
+        clients:
+            hosts:
+                 client0: { ansible_host: client0 }

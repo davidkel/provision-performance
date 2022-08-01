@@ -1,0 +1,47 @@
+#jinja2: lstrip_blocks: True
+
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+{% for ordererOrg in orgvars_ordererOrgs %}
+  - Name: {{ ordererOrg }}
+    Domain: {{ ordererOrg }}
+
+    Specs:
+    {% for orderer in orgvars_ordererOrgs[ordererOrg] %}
+      - Hostname: {{ orderer }}
+        CommonName: {{ orderer }}
+        SANS:
+          - {{ orderer }}
+          - {{ hostvars[orderer].ansible_host }}
+          {% if hostvars[orderer].internal_addr is defined %}
+          - {{ hostvars[orderer].internal_addr }}
+          {% endif %}
+
+    {% endfor %}
+
+{% endfor %}
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+{% for peerOrg in orgvars_peerOrgs %}
+  - Name: {{ peerOrg }}
+    Domain: {{ peerOrg }}
+    EnableNodeOUs: false
+
+    Specs:
+    {% for peer in orgvars_peerOrgs[peerOrg] %}
+      - Hostname: {{ peer }}   # implicitly {{peer}}.{{peerOrg}}
+        CommonName: {{ peer }} # overrides the above
+        SANS:
+          - {{ peer }}
+          - {{ hostvars[peer].ansible_host }}
+          {% if hostvars[peer].internal_addr is defined %}
+          - {{ hostvars[peer].internal_addr }}
+          {% endif %}
+    {% endfor %}
+
+{% endfor %}

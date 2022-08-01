@@ -1,0 +1,45 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: clients:peers:orderers    # only clients need these variables (TODO: Do I need all these hosts ?)
+  remote_user: root
+
+  roles:
+    - util/orgvars
+
+- name: Generate channel artifacts on client. Also genesis block on orderers.
+  hosts: client0
+  remote_user: root
+
+  tasks:
+    - name: Empty the channel artifacts folder
+      include_role:
+        name: util/ensure_empty_folder
+      vars:
+        path: /root/channel-artifacts
+
+    - name: Create folders for channel artifacts of each channel
+      file:
+          path: /root/channel-artifacts/{{item}}
+          state: directory
+      loop: '{{ channelIDsList }}'
+
+    - name: Fill template of configtx.yaml.j2
+      template:
+        dest: /root/configtx.yaml
+        src: ./templates/configtx.yaml.j2
+      vars:
+        t_block_size: '{{ block_size }}'
+        t_preferred_max_bytes: '{{ preferred_max_bytes }}'
+
+    - name: Generate channel config tx on client
+      shell: >-
+        PATH={{ dltDest }}/build/bin configtxgen -profile Channel
+        -outputBlock /root/channel-artifacts/{{item}}/channel.block
+        -channelID {{ item }}
+      args:
+        chdir: /root
+      loop: '{{ channelIDsList }}'
+#      when: '"clients" in group_names'
+
+# Channel artifacts get copied to peers later when they need them

@@ -1,0 +1,2 @@
+nodesource_gpg_key_url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+node_version: node_14.x

@@ -1,0 +1,34 @@
+#!/usr/bin/env ansible-playbook
+
+# looks like this playbook reqyures Docker SDK for python to exist on client0
+
+- name: Install docker for python
+  hosts: client0
+  remote_user: root
+  roles:
+    - role: pkgs/docker_pip
+
+- name: Deploy, configure prometheus
+  hosts: client0
+  remote_user: root
+  tasks:
+    - name: Pull prometheus docker image
+      docker_image:
+        name: prom/prometheus:v2.32.1
+
+    - name: Fill prometheus template
+      template:
+        dest: /root/prometheus.yml
+        src: ./templates/prometheus.yaml.j2
+
+    - name: Pull grafana docker image
+      docker_image:
+        name: grafana/grafana:8.3.4
+
+    - name: Copy the grafana config
+      copy:
+        src: ./static-files/grafana
+        dest: /root
+
+
+

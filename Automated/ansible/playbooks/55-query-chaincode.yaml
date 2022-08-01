@@ -1,0 +1,36 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: clients:peers:orderers    # only clients need these variables
+  remote_user: root
+  roles:
+    - util/orgvars
+
+- name: Query chaincode
+  hosts: peers
+  remote_user: root
+
+  vars:
+    channelPeerAllocJ: '{{ channelPeerAlloc }}'
+
+  tasks:
+    - name: Query chaincode
+      shell: >-
+        ./peer chaincode query -C {{item}} -c '{{ccQueryArgs}}' -n {{ccName}} > /root/queryres.txt 2>&1
+      args:
+        chdir: '{{ dltDest }}/build/bin'
+      environment:
+          FABRIC_CFG_PATH: '{{ fabric_cfg_path }}'
+          CORE_PEER_ADDRESS: '{{peer_host}}:7051'
+          CORE_PEER_LOCALMSPID: '{{ peer_org }}MSP'
+          CORE_PEER_MSPCONFIGPATH: /root/crypto-config/peerOrganizations/{{ peer_org }}/users/Admin@{{ peer_org }}/msp/
+          CORE_PEER_TLS_ENABLED: "true"
+          CORE_PEER_TLS_KEY_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.key
+          CORE_PEER_TLS_CERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/server.crt
+          CORE_PEER_TLS_ROOTCERT_FILE: /root/crypto-config/peerOrganizations/{{ peer_org }}/peers/{{ peer_name }}/tls/ca.crt
+      loop: '{{ channelIDsList }}'
+      retries: 5
+      delay: 3
+      register: result
+      until: result.rc == 0
+      when: 'channelPeerAllocJ == "all" or channelPeerAllocJ[item] == "all" or peer_name in channelPeerAllocJ[item]'

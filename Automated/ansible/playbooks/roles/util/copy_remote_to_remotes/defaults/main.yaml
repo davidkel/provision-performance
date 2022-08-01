@@ -1,0 +1,3 @@
+dest: '{{src}}'
+__dest_parent: "{{dest | regex_replace('\\/[^\\/]+\\/?$', '') }}" # remove last chunk in the path
+__archive_name: "{{src | regex_replace('^\\/|\\/$', '') | regex_replace('\\/', '_') }}"

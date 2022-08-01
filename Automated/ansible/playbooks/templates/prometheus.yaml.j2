@@ -1,0 +1,33 @@
+#jinja2: lstrip_blocks: True
+{#
+    Template variables:
+    -> orderers:             list of all orderers
+    -> peers:                list of all peers
+#}
+
+scrape_configs:
+    # Peers
+{% for peer in peers %}
+    - job_name: {{ peer }}
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['{{ hostvars[peer].ansible_host }}:9100', '{{ hostvars[peer].ansible_host }}:9443']
+{% endfor %}
+
+    # Orderers
+{% for orderer in orderers %}
+    # Scrape the Node Exporter every 5 seconds.
+    - job_name: {{ orderer }}
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['{{ hostvars[orderer].ansible_host }}:9100', '{{ hostvars[orderer].ansible_host }}:8443']
+{% endfor %}
+
+    # Clients
+{% for client in clients %}
+    # Scrape the Node Exporter every 5 seconds.
+    - job_name: {{ client }}
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['{{ hostvars[client].ansible_host }}:9100']
+{% endfor %}

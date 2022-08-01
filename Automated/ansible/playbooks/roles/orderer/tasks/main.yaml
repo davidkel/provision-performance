@@ -1,0 +1,49 @@
+# This role requires no parameters other than standard inventory variables
+
+- name: Start the orderer
+  shell: |
+    pwd >> /root/orderer.log
+    pkill tmux
+    tmux new -s 'orderer' -d './orderer' \; pipe-pane 'cat >> /root/orderer.log'
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment:
+    FABRIC_CFG_PATH: '{{ dltDest }}/sampleconfig/'
+    FABRIC_LOGGING_SPEC: INFO
+    ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
+    ORDERER_GENERAL_LISTENPORT: 7050
+    ORDERER_GENERAL_BOOTSTRAPMETHOD: none
+    ORDERER_CHANNELPARTICIPATION_ENABLED: true
+    ORDERER_ADMIN_TLS_ENABLED: true
+    ORDERER_ADMIN_TLS_CERTIFICATE: '{{ orderer_tls_cert }}'
+    ORDERER_ADMIN_TLS_PRIVATEKEY: '{{ orderer_tls_privkey }}'
+    ORDERER_ADMIN_TLS_ROOTCAS: '{{ orderer_tls_rootcas }}'
+    ORDERER_ADMIN_TLS_CLIENTROOTCAS: '{{ orderer_tls_rootcas }}'
+    ORDERER_ADMIN_LISTENADDRESS: 0.0.0.0:7053
+    ORDERER_GENERAL_TLS_ENABLED: true
+    ORDERER_OPERATIONS_LISTENADDRESS: 0.0.0.0:8443
+    ORDERER_METRICS_PROVIDER: prometheus
+    ORDERER_GENERAL_PROFILE_ENABLED: '{{ enable_profile }}'
+    ORDERER_GENERAL_LOCALMSPID: '{{ orderer_mspid }}'
+    ORDERER_GENERAL_LOCALMSPDIR: '{{ orderer_mspdir }}'
+    ORDERER_GENERAL_TLS_PRIVATEKEY: '{{ orderer_tls_privkey }}'
+    ORDERER_GENERAL_TLS_CERTIFICATE: '{{ orderer_tls_cert }}'
+    ORDERER_GENERAL_TLS_ROOTCAS: '{{ orderer_tls_rootcas }}'
+    ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: '{{ orderer_tls_cert }}'
+    ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: '{{ orderer_tls_privkey }}'
+    ORDERER_GENERAL_CLUSTER_ROOTCAS: '{{ orderer_tls_rootcas }}'
+  retries: 3
+  delay: 10
+  register: result
+  #until: result.rc == 0
+
+- name: Wait for orderer to accept connections
+  wait_for:
+    host: '{{ ansible_host }}'
+    port: 7050
+    state: started
+    connect_timeout: 1
+    timeout: 30
+  register: orderer_running
+  until: orderer_running is success
+  retries: 5

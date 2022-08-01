@@ -1,0 +1,45 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Checkout hyperledger fabric to the given branch and build
+  hosts: client0:peers:orderers
+  remote_user: root
+
+  vars:
+    target: '{{ "orderer" if "orderers" in group_names else "peer" }}' # == 'peer' if it's client as well.
+
+  tasks:
+
+#    - name: output var
+#      debug:
+#        msg: "The 'foo' variable value is {{ansible_env }}"
+
+    - name: Checkout to the {{dltBranch}} branch
+      git:
+        dest: '{{ dltDest }}'
+        repo: '{{dltRepo}}'
+        version: '{{dltBranch}}'
+        update: yes
+
+    - name: Remove the peer or orderer and cryptogen and configtxgen binaries to force rebuild
+      file:
+        path: '{{ dltDest }}/build/bin/{{item}}'
+        state: absent
+      loop: ['{{target}}', configtxgen, cryptogen, osnadmin]
+
+    - name: Build configtxgen and cryptogen
+      make:
+        chdir: '{{ dltDest }}'
+        target: '{{ item }}'
+        params:
+          NUM_THREADS: '{{ ansible_processor_vcpus }}'
+      loop: [configtxgen, cryptogen, osnadmin, configtxlator]
+
+    - name: Run make to build peer or orderer
+      make:
+        chdir: '{{ dltDest }}'
+        target: '{{ target }}'
+        params:
+          NUM_THREADS: '{{ ansible_processor_vcpus }}'
+
+
+

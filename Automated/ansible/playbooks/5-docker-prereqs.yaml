@@ -1,0 +1,30 @@
+#!/usr/bin/env ansible-playbook
+
+## only required for docker containers
+- name: Install python if needed
+  hosts: all
+  remote_user: root
+  gather_facts: false
+  tasks:
+    - name: check python3 exists
+      raw: "python3 --version"
+      register: python_version_check
+      ignore_errors: true
+
+    - name: install python3 if not installed
+      when: python_version_check.rc != 0
+      raw: apt-get update && apt-get -y -q install python3
+
+- name: Install gpg, ca-certs
+  hosts: all
+  remote_user: root
+  gather_facts: false
+  tasks:
+    - name: Install gpg
+      apt:
+        name: gpg
+        state: present
+    - name: Install ca-certs
+      apt:
+        name: ca-certificates
+        state: present

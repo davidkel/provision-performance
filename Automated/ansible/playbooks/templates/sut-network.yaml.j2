@@ -1,0 +1,27 @@
+name: SUT
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+
+channels:
+  - channelName: '{{ channelIDs }}'
+    contracts:
+    - id: '{{ ccName }}'
+
+organizations:
+  - mspid: '{{ first_peer_org }}MSP'
+    identities:
+      certificates:
+      - name: 'User1'
+        clientPrivateKey:
+          pem: {{ lookup('file', '/root/crypto-config/peerOrganizations/{{ first_peer_org }}/users/Admin@{{ first_peer_org }}/msp/keystore/priv_sk') | b64encode }}
+        clientSignedCert:
+          pem: {{ lookup('file', '/root/crypto-config/peerOrganizations/{{ first_peer_org }}/users/Admin@{{ first_peer_org }}/msp/signcerts/Admin@{{ first_peer_org }}-cert.pem') | b64encode }}
+    peers:
+      - endpoint: '{{ first_peer }}:7051'
+        grpcOptions:
+          grpc.keepalive_time_ms: 600000
+        tlsCACerts:
+          pem: |-
+            {{ lookup('file', '/root/crypto-config/peerOrganizations/{{ first_peer_org }}/users/Admin@{{ first_peer_org }}/msp/tlscacerts/tlsca.{{ first_peer_org }}-cert.pem') | indent(12) }}

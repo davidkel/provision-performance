@@ -1,0 +1,28 @@
+# we use docker for local connection and in that case we just map the folders to be copied on same volumes
+# hence all commands here have a condition that check if connection != docker
+
+- name: Archive the {{src}} folder on {{src_hostname}}
+  archive:
+    path: '{{src}}'
+    dest: "{{ __archive_name }}.tgz"
+  when: inventory_hostname == src_hostname and ansible_connection != "docker"
+
+- name: Fetch the {{src}} archive from {{src_hostname}}
+  fetch:
+    src: '{{ __archive_name }}.tgz'
+    dest: /tmp/{{ __archive_name }}.tgz
+    flat: yes
+  when: inventory_hostname == src_hostname and ansible_connection != "docker"
+
+- name: Make sure the {{dest}} folder doesn't exist
+  file:
+    path: '{{dest}}'
+    state: absent
+  when: group_names | intersect(dest_groups) | length > 0 and ansible_connection != "docker"
+
+- name: Extract the archive
+  unarchive:
+    src: /tmp/{{ __archive_name }}.tgz # local path. unarchive copies it to remote before extracting
+    dest: '{{__dest_parent}}'
+    creates: '{{dest}}'
+  when: ansible_connection != "docker"

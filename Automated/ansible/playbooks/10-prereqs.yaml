@@ -1,0 +1,85 @@
+#!/usr/bin/env ansible-playbook
+
+- hosts: all
+  remote_user: root
+  tasks:
+    - name: Add domain names of all hosts to all hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '[ \t]+{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        unsafe_writes: yes
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.all }}"
+
+    - name: Ensure bashrc gets read even in non interactive sessions # important to load environment variables on remote
+      replace:
+        path: '/root/.bashrc'
+        regexp: '^\[ -z ".PS1" \] && return$'
+        replace: '# [ -z "$PS1" ] && return'
+
+- name: Install nodejs
+  hosts: clients
+  remote_user: root
+  roles:
+    - role: pkgs/nodejs
+
+- name: Install docker
+  hosts: peers:client0
+  remote_user: root
+  roles:
+    - role: pkgs/docker
+
+- name: Install build-essential
+  hosts: peers:orderers:clients
+  remote_user: root
+  tasks:
+    - name: Install build-essential
+      apt:
+        name: build-essential
+        state: present
+        update_cache: yes
+
+- name: Install GoLang
+  hosts: peers:orderers:client0
+  remote_user: root
+  roles:
+    - role: pkgs/golang
+
+- name: Install resource monitoring and other helper tools
+  hosts: peers:orderers:clients
+  remote_user: root
+  tasks:
+    - name: Install prometheus node extractor
+      # for VMs it looks like .bashrc is run automatically, for docker containers it doesn't
+      # ~/go/bin would be the default if no goroot
+      # shell: source /root/.bashrc && go install github.com/prometheus/node_exporter@latest
+      shell: go install github.com/prometheus/node_exporter@latest
+      args:
+        executable: /bin/bash
+
+    # TODO install prometheus process extractor
+    - name: Install prometheus process extractor
+      shell: echo TODO
+
+    - name: Install iftop. nmap, netcat, nmon, htop, tmux
+      apt:
+        name: [iftop, nmap, netcat, nmon, htop, tmux]
+        state: present
+
+- hosts: client0
+  remote_user: root
+  tasks:
+    - name: install jq for client0
+      apt:
+       name: jq
+       state: present
+
+- hosts: orderers
+  remote_user: root
+  tasks:
+    - name: install git for orderers
+      apt:
+       name: git
+       state: present

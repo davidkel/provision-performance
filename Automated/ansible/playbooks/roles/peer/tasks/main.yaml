@@ -1,0 +1,54 @@
+# This role requires no parameters other than standard inventory variables
+
+- name: Start the peer
+  become: true
+
+  # because tmux sometimes keeps old environment variables in the new session. Super annoying. Can't reproduce deterministically
+  # tmux kill-session -t 'peer';
+  shell: |
+    ls -al >> /root/peer.log
+    pkill tmux
+    tmux new -s 'peer' -d 'ulimit -n 100000; ./peer node start' \; pipe-pane 'cat >> /root/peer.log'
+  args:
+    chdir:  '{{ dltDest }}/build/bin'
+  environment: '{{ env_vars | combine(overridden_peer_env | from_json) }}'
+  vars:
+    overridden_peer_env: '{"FOOBAR": true}'
+    env_vars:
+      FABRIC_CFG_PATH: '{{ dltDest }}/sampleconfig/'
+      FABRIC_LOGGING_SPEC: INFO
+      CORE_PEER_TLS_ENABLED: true
+      CORE_VM_DOCKER_ATTACHSTDOUT: false
+      CORE_CHAINCODE_LOGGING_LEVEL: info
+      CORE_CHAINCODE_BUILDER: 'hyperledger/fabric-ccenv:2.4' # instantiation fails without this.
+      CORE_CHAINCODE_GOLANG_RUNTIME: 'hyperledger/fabric-baseos:2.4' # instantiation fails without this.
+      CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:9443
+      CORE_METRICS_PROVIDER: prometheus
+      CORE_PEER_PROFILE_ENABLED: false #true - override via "peer_env_vars" if required
+
+      CORE_PEER_ID: '{{ peer_name }}'
+      CORE_PEER_ADDRESS: '0.0.0.0:7051'
+      CORE_PEER_LOCALMSPID: '{{ peer_mspid }}'
+      CORE_PEER_MSPCONFIGPATH: '{{ peer_mspdir }}'
+      CORE_PEER_TLS_KEY_FILE: '{{ peer_tls_privkey }}'
+      CORE_PEER_TLS_CERT_FILE: '{{ peer_tls_cert }}'
+      CORE_PEER_TLS_ROOTCERT_FILE: '{{ peer_tls_rootcas }}'
+      CORE_PEER_GOSSIP_BOOTSTRAP: '{{ peer_gossip_bootstrap }}'
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: '{{ peer_gossip_bootstrap }}'
+
+      CORE_PEER_PREFERREDORDERERENDPOINT: '{{ preferredOrdererEndpoint | default("") }}'
+  retries: 3
+  delay: 10
+  register: result
+  until: result.rc == 0
+
+- name: Wait for peer to accept connections
+  wait_for:
+    host: '{{ ansible_host }}'
+    port: 7051
+    state: started
+    connect_timeout: 1
+    timeout: 10
+  register: peer_running
+  until: peer_running is success
+  retries: 6

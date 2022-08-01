@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Checkout caliper benchmarks
+  hosts: peers:clients
+  remote_user: root
+
+  tasks:
+    - name: Checkout to the {{ benchBranch }} branch
+      git:
+        dest: '{{ benchDest }}'
+        repo: '{{ benchRepo }}'
+        version: '{{ benchBranch }}'
+        update: yes
+
+
