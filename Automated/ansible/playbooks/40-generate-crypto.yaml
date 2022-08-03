@@ -32,7 +32,8 @@
         chdir: /root
       when: 'inventory_hostname == "client0"'
 
-- name: Copy Crypto materials from local to all peers, orderers and clients (caliper clients need it as sut embed not possible for tlscacerts)
+# TODO: Should only have to be client0 for caliper
+- name: Copy Crypto materials from local to all peers, orderers and clients
   hosts: clients:peers:orderers
   remote_user: root
 

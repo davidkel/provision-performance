@@ -1,9 +1,9 @@
 #!/usr/bin/env ansible-playbook
-- import_playbook: playbooks/5-vm-prereqs.yaml
-  when: 'plays=="all" or ("docker" in plays)'
+#- import_playbook: playbooks/5-vm-prereqs.yaml
+#  when: 'plays=="all" or ("docker" in plays)'
 
-- import_playbook: playbooks/10-common-prereqs.yaml
-  when: 'plays=="all" or ("prereqs" in plays)'
+#- import_playbook: playbooks/10-common-prereqs.yaml
+#  when: 'plays=="all" or ("prereqs" in plays)'
 
 - import_playbook: playbooks/15-deploy-prometheus.yaml
   when: 'plays=="all" or ("deployprom" in plays)'
@@ -14,11 +14,11 @@
 - import_playbook: playbooks/30-checkout-benchmarks.yaml
   when: 'plays=="all" or ("checkoutbench" in plays)'
 
-- import_playbook: playbooks/40-deploy-caliper.yaml
-  when: 'plays=="all" or ("caliper" in plays)'
-
-- import_playbook: playbooks/45-generate-crypto.yaml
+- import_playbook: playbooks/40-generate-crypto.yaml
   when: 'plays=="all" or ("gencrypto" in plays)'
+
+- import_playbook: playbooks/45-deploy-caliper.yaml
+  when: 'plays=="all" or ("caliper" in plays)'
 
 - import_playbook: playbooks/50-generate-channel.yaml
   when: 'plays=="all" or ("genchan" in plays)'

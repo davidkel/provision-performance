@@ -50,6 +50,7 @@ export ANSIBLE_HOST_KEY_CHECKING=False ./site.yaml -e plays="all" -i inventory/t
   - run an ansible driven workload (how to setup workers and benchmark file)
   - collect the results from prometheus/caliper etc
 - reliability
+  - support state of absent to remove things as well
   - need to add retries for some things
   - need to improve the idempotency so if a re-run is done then it will work and not affect anything
 - other
@@ -109,12 +110,12 @@ nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml
 ## starting/stopping the monitors
 
 ansible-playbook -e plays="monitstart" playbooks/80-start-stop-observing.yaml
-ansible-playbook -e plays="monitstop" playbooks/90-start-stop-observing.yaml
+ansible-playbook -e plays="monitstop" playbooks/80-start-stop-observing.yaml
 
 ## starting/stopping the prometheus/grafana servers
 
-ansible-playbook -e plays="serverstart" playbooks/90-start-stop-observing.yaml (need to start manually for docker, see next section )
-ansible-playbook -e plays="serverstop" playbooks/90-start-stop-observing.yaml
+ansible-playbook -e plays="serverstart" playbooks/80-start-stop-observing.yaml (need to start manually for docker, see next section )
+ansible-playbook -e plays="serverstop" playbooks/80-start-stop-observing.yaml
 
 ### Run prometheus and grafana servers within docker env
 

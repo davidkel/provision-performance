@@ -6,12 +6,17 @@ all:
                     hosts:
                         # use fqdn rather than peer0 as it gets added to the TLS SANS
                         # internal address is optional to get it added to the TLS SANS
+                        # this may not be required as I think it adds peer0 to the hosts file
+                        # but there won't by anything directly looking for peer0 in the ansible scripts either
                         peer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         orderers:
             children:
                 ordererOrg0:
                     hosts:
+                        # use fqdn rather than orderer0 as it gets added to the TLS SANS
+                        # internal address is optional to get it added to the TLS SANS
                         orderer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         clients:
             hosts:
+                 # client0 is a special name so don't use fqdn
                  client0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
