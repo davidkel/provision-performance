@@ -1,11 +1,30 @@
 # notes
 
+
+## quick start for docker
+
+docker is the default because`ansible.cfg` points to the docker inventory
+
+1. cd Automated/provision-vms/docker
+2. build the controller docker image: docker build -f Dockerfile.controller -t controller:latest
+3. docker-compose up -d
+4. docker exec -it controller /bin/bash
+5. cd /ansible
+6. ./site.yaml -e "playes=all"
+7. docker exec -it client0 /bin/bash
+8. apt install -y nano
+9. cd ~/Manager
+10. nano ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml (change workers and tps to 2, 300)
+11. ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml -l
+12. nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml (change workers and tps to 2, 100)
+13. ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml -l
+
 ## initial issues I saw
 
 docker I see some failures
 
 - sometimes can't get the ssh key for some hosts (can on next run) - soln: don't need the ssh support for docker
-- go install failed because it wasn't on the path - soln: we link go to usr/bin
+- go install failed because it wasn't on the path                  - soln: we link go to usr/bin
 
 
 fatal: [s6client0]: FAILED! => {"msg": "to use the 'ssh' connection type with passwords, you must install the sshpass program"}
@@ -23,33 +42,26 @@ export ANSIBLE_HOST_KEY_CHECKING=False ./site.yaml -e plays="all" -i inventory/t
 - Fabric
   - support v2 lifecycle (Optional)
   - support couchdb (Optional)
-  - look at the restart-nodes playbook to decide on what it can do
 - prom/graf
   - need to create separate dashboards for nodes/processes, fabric metrics, fsc metrics (I have node and fabric on a single page at the moment)
   - deploy configured process exporter as alternative to nmon
 - Workload
-  - distinguish clients maybe (client0 runs: prometheus/grafana for example)
-  - deploy caliper to clients over benchmark repo
-  - client0 to be caliper manager
-  - run a workload (how to setup workers and benchmark file)
+  - distinguish clients maybe (client0 runs: fabric generation, some of the fabric config, prometheus/grafana, caliper manager)
+  - run an ansible driven workload (how to setup workers and benchmark file)
   - collect the results from prometheus/caliper etc
+- reliability
+  - need to add retries for some things
+  - need to improve the idempotency so if a re-run is done then it will work and not affect anything
 - other
-  - Sort out start/stop monitoring
-  - reliability as some things to fail, so need retries as we want to avoid having to rely on idempotency to run the same setup again to fix the failures
-  - document monitstart, monitstop, serverstart, serverstop
   - shutdown env
-  - need more idempotency as a lot of it isn't
-  - need to consider retries and checks (eg git didn't install on orderer0 for some reason)
   - address hardcoded paths (hopefully not too much to do)
   - TODOs in code
-  - More customisation
   - Use an external builder and remove need for docker
   - rationlise remote_user vs become but this system effectively requires user to be root all the time, Whole system relies on being able to login as root in many places, In other places they use become which is pointless as it needs root login anyway
   - look at need to gather facts everywhere, also we could set some facts on remote systems if it would be helpful
 
-
-
 ## Deploy a caliper manager to test in docker
+
 ```bash
 docker run -it --rm --name manager --network docker_default ubuntu:20.04 /bin/bash
 
@@ -100,28 +112,46 @@ ansible-playbook -e plays="monitstart" playbooks/80-start-stop-observing.yaml
 ansible-playbook -e plays="monitstop" playbooks/90-start-stop-observing.yaml
 
 ## starting/stopping the prometheus/grafana servers
-ansible-playbook -e plays="serverstart" playbooks/90-start-stop-observing.yaml
+
+ansible-playbook -e plays="serverstart" playbooks/90-start-stop-observing.yaml (need to start manually for docker, see next section )
 ansible-playbook -e plays="serverstop" playbooks/90-start-stop-observing.yaml
 
+### Run prometheus and grafana servers within docker env
 
-## stopping and restarting fabric
-TBD
-
-## Run prometheus and grafana servers within docker env
+In the host enviroment:
 
 - cd Automated/ansible/playbooks/static-files
-- copy prometheus.yml file from client0 over to this dir
+- copy /root/prometheus.yml file from client0 over to this dir
 - docker run --rm -d --name prom -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml --network docker_default -p 9090:9090 prom/prometheus:v2.32.1
 - docker run --rm -d --name graf -v $PWD/grafana/provisioning:/etc/grafana/provisioning -e "GF_SECURITY_ADMIN_PASSWORD=admin" -e "GF_USERS_ALLOW_SIGN_UP=false" --network docker_default -p 3000:3000 grafana/grafana:8.3.4
 - change the datasource from localhost to prom
 
+## stopping and restarting fabric
+
+TBD
+
 ## manually running a caliper benchmark in docker env
+
 - docker exec -it client0 /bin/bash
 - cd Manager
 - nano ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml (workers: 2, tps: 200)
 - ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml -l
 - nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml (workers: 2, tps 100)
 - ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml -l
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Issues when deploying to Fyre VMs

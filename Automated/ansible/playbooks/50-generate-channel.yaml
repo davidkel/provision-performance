@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Create ordererOrgs and peerOrgs maps to be used for following plays
-  hosts: clients:peers:orderers    # only clients need these variables (TODO: Do I need all these hosts ?)
+  hosts: clients:peers:orderers    # only client0 needs these variables but has to be run across all hosts (apparently, TODO: Check)
   remote_user: root
 
   roles:

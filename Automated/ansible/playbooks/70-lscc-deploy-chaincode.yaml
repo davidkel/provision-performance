@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Create ordererOrgs and peerOrgs maps to be used for following plays
-  hosts: client0:peers    # only client0 need these variables
+  hosts: client0:peers
   remote_user: root
   roles:
     - util/orgvars
@@ -93,7 +93,7 @@
   tasks:
     - name: Query chaincode
       shell: >-
-        ./peer chaincode query -C {{item}} -c '{{ccQueryArgs}}' -n {{ccName}}
+        ./peer chaincode query -C {{item}} -c '{{ccQueryArgs}}' -n {{ccName}} > /root/query.txt 2>&1
       args:
         chdir: '{{ dltDest }}/build/bin'
       environment:

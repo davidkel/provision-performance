@@ -1,6 +1,6 @@
 # This role requires no parameters other than standard inventory variables
 
-- name: Start the peer
+- name: Start/Restart the peer
   become: true
 
   # because tmux sometimes keeps old environment variables in the new session. Super annoying. Can't reproduce deterministically

@@ -1,4 +1,4 @@
-# Not idemopotent as it will fail if already added
+# TODO: Not idemopotent as it will fail if already added
 
 - name: fetch channel config
   shell: |

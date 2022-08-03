@@ -1,0 +1,9 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Shut down peers and orderers after running
+  hosts: peers:orderers
+  remote_user: root
+  tasks:
+    - name: Stop peers and orderers etc
+      shell: pkill tmux;
+      ignore_errors: true

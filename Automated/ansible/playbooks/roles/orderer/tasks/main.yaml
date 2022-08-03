@@ -1,6 +1,6 @@
 # This role requires no parameters other than standard inventory variables
 
-- name: Start the orderer
+- name: Start/Restart the orderer
   shell: |
     pwd >> /root/orderer.log
     pkill tmux
