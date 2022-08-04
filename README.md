@@ -115,3 +115,94 @@ TODO: fixed-tps and fixed-load
 
 1. newly deployed/upgraded chaincode may have an initial Latency. I've seen this from some cloud providers (not tried on a local fabric as yet) so worth running some empty transaction benchmark first to remove this Latency from the results
 2. Tipping point, too high a load can result in less tps and higher latency than a lower load. This is the Tipping point of the fabric network
+3. Watch the unfinished txns while caliper is observing if it continues to increase then you have overloaded the SUT and it will eventually result in errors
+
+### Example of caliper being the bottleneck
+
+```
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ  | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|-------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 68761 | 0    | 572.9           | 0.20            | 0.00            | 0.02            | 572.9            |
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+unfinished remained bounded with 10-13
+
+but the benchmark was 7 workers with
+```
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1500
+```
+
+10 workers resulted (bounded 15-18 on unfinished transactions)
+
+```
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ  | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|-------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 62332 | 0    | 519.4           | 0.30            | 0.00            | 0.03            | 519.3            |
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+even less throughput
+
+optimal workers for a 2 cpu Manager is probably 3 or 4 but above a certain number say 7 it is not so good
+
+```
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ  | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|-------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 67631 | 0    | 563.6           | 0.20            | 0.00            | 0.01            | 563.6            |
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+Here is 3 but the latency is better with the send rate looking good
+
+```
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ  | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|-------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 67980 | 0    | 566.5           | 0.10            | 0.00            | 0.01            | 566.5            |
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+Now moving to 2 VMs and remote workers running 3 workers each (as 2 core cpu on each)
+
+```
++-----------------------------------+--------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ   | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|--------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 101968 | 0    | 849.7           | 0.17            | 0.00            | 0.01            | 849.6            |
++-----------------------------------+--------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+Note remote workers add overhead compared to local workers. Unfortunately you can't mix local/remote workers
+looking at the SUT cpu, max was 75% so still caliper is the bottleneck
+
+Note for evaluate txn it only picks on a single peer when using peer gateway
+
+7 workers
+```
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ  | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|-------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 94666 | 0    | 788.9           | 0.25            | 0.00            | 0.02            | 788.8            |
++-----------------------------------+-------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+quite a drop and still doesn't manage to get to 1500 and the unfinished remained bounded so still caliper appears to be the bottleneck
+
+
+now with a more powerful 4 cpu worker I get with 10 workers
+
+```
++-----------------------------------+--------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+| Name                              | Succ   | Fail | Send Rate (TPS) | Max Latency (s) | Min Latency (s) | Avg Latency (s) | Throughput (TPS) |
+|-----------------------------------|--------|------|-----------------|-----------------|-----------------|-----------------|------------------|
+| empty-contract-evaluate-fixed-tps | 118298 | 0    | 985.7           | 0.62            | 0.01            | 0.05            | 985.6            |
++-----------------------------------+--------+------+-----------------+-----------------+-----------------+-----------------+------------------+
+```
+
+I think now the SUT is the bottleneck

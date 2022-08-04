@@ -32,8 +32,7 @@
         chdir: /root
       when: 'inventory_hostname == "client0"'
 
-# TODO: Should only have to be client0 for caliper
-- name: Copy Crypto materials from local to all peers, orderers and clients
+- name: Copy Crypto materials from client0 to all peers, orderers and other clients (caliper workers use path references)
   hosts: clients:peers:orderers
   remote_user: root
 

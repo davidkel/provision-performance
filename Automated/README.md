@@ -10,14 +10,22 @@ docker is the default because`ansible.cfg` points to the docker inventory
 3. docker-compose up -d
 4. docker exec -it controller /bin/bash
 5. cd /ansible
-6. ./site.yaml -e "playes=all"
+6. ./site.yaml -e "plays=all"
 7. docker exec -it client0 /bin/bash
 8. apt install -y nano
 9. cd ~/Manager
 10. nano ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml (change workers and tps to 2, 300)
 11. ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml -l
-12. nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml (change workers and tps to 2, 100)
+12. nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100yaml (change workers and tps to 2, 100)
 13. ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml -l
+
+
+also can do remote workers
+1. cd ~/Worker
+2. ./launch-workers.sh -w 4 -i mqtt:1883
+
+1. cd ~/Manager
+2. ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml -i mqtt:1883
 
 ## initial issues I saw
 
@@ -42,21 +50,28 @@ export ANSIBLE_HOST_KEY_CHECKING=False ./site.yaml -e plays="all" -i inventory/t
 - Fabric
   - support v2 lifecycle (Optional)
   - support couchdb (Optional)
+  - support multiple chaincodes ? (ie can deploy more than 1 chaincode)
+  - is they way we clear out peers and orderers ok ?
 - prom/graf
-  - need to create separate dashboards for nodes/processes, fabric metrics, fsc metrics (I have node and fabric on a single page at the moment)
-  - deploy configured process exporter as alternative to nmon
+  - need to create separate dashboards for nodes/processes, fabric metrics, fsc metrics (I have node, process and fabric on a single page at the moment)
 - Workload
   - distinguish clients maybe (client0 runs: fabric generation, some of the fabric config, prometheus/grafana, caliper manager)
+    - eg have explicit definition of caliper-manager, caliper-worker for example
   - run an ansible driven workload (how to setup workers and benchmark file)
   - collect the results from prometheus/caliper etc
+  - add support for multiple channels
+  - deploy-caliper currently requires the deploy-benchmarks step so not a standalone option
+  - start-stop-observing includes mosquitto currently maybe move to run benchmark to make caliper stuff standalone
 - reliability
   - support state of absent to remove things as well
   - need to add retries for some things
   - need to improve the idempotency so if a re-run is done then it will work and not affect anything
+  - idempotent with effiency on re-run: the task can do the same thing again and it results in no changes, but we should check to see if it's been done before trying to do it again to make a re-run more efficient
 - other
+  - support deploying more than one thing to the same VM, eg prom template may have issues
+  - support changes to inventory
   - shutdown env
   - address hardcoded paths (hopefully not too much to do)
-  - TODOs in code
   - Use an external builder and remove need for docker
   - rationlise remote_user vs become but this system effectively requires user to be root all the time, Whole system relies on being able to login as root in many places, In other places they use become which is pointless as it needs root login anyway
   - look at need to gather facts everywhere, also we could set some facts on remote systems if it would be helpful
@@ -117,15 +132,16 @@ ansible-playbook -e plays="monitstop" playbooks/80-start-stop-observing.yaml
 ansible-playbook -e plays="serverstart" playbooks/80-start-stop-observing.yaml (need to start manually for docker, see next section )
 ansible-playbook -e plays="serverstop" playbooks/80-start-stop-observing.yaml
 
-### Run prometheus and grafana servers within docker env
+### Run mosuitto, prometheus, grafana servers within docker env
 
 In the host enviroment:
 
 - cd Automated/ansible/playbooks/static-files
+- docker run --rm -d --name mqtt -p 1883:1883 -p 9001:9001 --network docker_default -v $PWD/mosquitto:/mosquitto/config eclipse-mosquitto:latest
 - copy /root/prometheus.yml file from client0 over to this dir
 - docker run --rm -d --name prom -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml --network docker_default -p 9090:9090 prom/prometheus:v2.32.1
 - docker run --rm -d --name graf -v $PWD/grafana/provisioning:/etc/grafana/provisioning -e "GF_SECURITY_ADMIN_PASSWORD=admin" -e "GF_USERS_ALLOW_SIGN_UP=false" --network docker_default -p 3000:3000 grafana/grafana:8.3.4
-- change the datasource from localhost to prom
+- change the datasource from localhost to prom in the grafana UI
 
 ## stopping and restarting fabric
 

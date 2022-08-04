@@ -5,18 +5,28 @@
   remote_user: root
   tasks:
     - name: Stop node exporter
-      shell: tmux kill-session -t 'monitoring';
+      shell: tmux kill-session -t 'node-exporter';
       when: "'monitstop' in plays"
       ignore_errors: true
 
     - name: Start node exporter
-      shell: tmux new -s 'monitoring' -d './node_exporter'
+      shell: tmux new -s 'node-exporter' -d './node_exporter'
       args:
         chdir:  '/root/go/bin'
       when: "'monitstart'in plays"
 
-# TODO: Add process exporter
+    - name: Stop process exporter
+      shell: tmux kill-session -t 'process-exporter';
+      when: "'monitstop' in plays"
+      ignore_errors: true
 
+    - name: Start process exporter
+      shell: tmux new -s 'process-exporter' -d './process-exporter -config.path /root/procexp.yml'
+      args:
+        chdir:  '/root/go/bin'
+      when: "'monitstart'in plays"
+
+# excluding capturing nmon data for now
 #- name: Control nmon monitoring
 #  hosts: all
 #  remote_user: root
@@ -39,6 +49,17 @@
 #      shell: nmon -f -s 1 -c 5000
 #      args:
 #        chdir: /root
+
+- name: Control mosquitto broker
+  hosts: client0
+  remote_user: root
+  tasks:
+    - name: Stop mosquitto
+      when: "'serverstop' in plays"
+      docker_container:
+        name: mqtt
+        image: eclipse-mosquitto:latest
+        state: absent
 
 - name: Control prometheus server
   hosts: client0
@@ -80,6 +101,14 @@
 # 2. run these natively
 # 3. try true DinD
 # for now you need to start it manually from the host environment (see READMe.md in Automated directory)
+
+    - name: Start the mosquitto server
+      when: ansible_connection != "docker" and 'serverstart'in plays
+      shell: docker run -d --user root                                         \
+                -v /root/mosquitto:/mosquitto/config                           \
+               --network host                                                  \
+               --name mqtt                                                     \
+               eclipse-mosquitto:latest
 
     - name: Start the prometheus server
       when: ansible_connection != "docker" and 'serverstart'in plays

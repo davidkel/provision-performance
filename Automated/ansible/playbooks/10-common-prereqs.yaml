@@ -19,6 +19,11 @@
         regexp: '^\[ -z ".PS1" \] && return$'
         replace: '# [ -z "$PS1" ] && return'
 
+    - name: install git
+      apt:
+       name: git
+       state: present
+
 - name: Install nodejs
   hosts: clients
   remote_user: root
@@ -42,7 +47,7 @@
         update_cache: yes
 
 - name: Install GoLang
-  hosts: peers:orderers:client0
+  hosts: peers:orderers:clients
   remote_user: root
   roles:
     - role: pkgs/golang
@@ -51,7 +56,7 @@
   hosts: peers:orderers:clients
   remote_user: root
   tasks:
-    - name: Install prometheus node extractor
+    - name: Install prometheus node exporter
       # for VMs it looks like .bashrc is run automatically, for docker containers it doesn't
       # ~/go/bin would be the default if no goroot
       # shell: source /root/.bashrc && go install github.com/prometheus/node_exporter@latest
@@ -59,9 +64,23 @@
       args:
         executable: /bin/bash
 
-    # TODO install prometheus process extractor
-    - name: Install prometheus process extractor
-      shell: echo TODO
+    - name: Download prometheus process exporter
+      unarchive:
+        src: "https://github.com/ncabatoff/process-exporter/releases/download/v0.7.10/process-exporter-0.7.10.linux-amd64.tar.gz"
+        dest: /tmp
+        remote_src: true
+
+    - name: Install prometheus process exporter
+      copy:
+        src: /tmp/process-exporter-0.7.10.linux-amd64/process-exporter
+        dest: /root/go/bin
+        mode: preserve
+        remote_src: true
+
+    - name: Copy the process exporter config
+      copy:
+        src: ./static-files/procexp.yml
+        dest: /root
 
     - name: Install iftop. nmap, netcat, nmon, htop, tmux
       apt:
@@ -76,10 +95,3 @@
        name: jq
        state: present
 
-- hosts: orderers
-  remote_user: root
-  tasks:
-    - name: install git for orderers
-      apt:
-       name: git
-       state: present

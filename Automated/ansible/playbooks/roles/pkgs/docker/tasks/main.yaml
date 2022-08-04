@@ -28,21 +28,21 @@
 #    - name: Test run with hello-world
 #      shell: docker run hello-world
 
-- name: Check if docker-compose is installed
-  become: true
-  become_flags: -H
-  shell: "docker-compose --version"
-  register: docker_compose_version_check
-  ignore_errors: true
+# - name: Check if docker-compose is installed
+#  become: true
+#  become_flags: -H
+#  shell: "docker-compose --version"
+#  register: docker_compose_version_check
+#  ignore_errors: true
 
-- name: Install docker compose
-  when: docker_compose_version_check.rc != 0
-  block:
-    - name: Download the docker-compose binary
-      get_url:
-        url: 'https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-Linux-x86_64'
-        dest: /usr/local/bin/docker-compose
-    - name: Chmod +x to the file
-      file:
-        dest: /usr/local/bin/docker-compose
-        mode: +x
+# - name: Install docker compose
+#  when: docker_compose_version_check.rc != 0
+#  block:
+#    - name: Download the docker-compose binary
+#      get_url:
+#        url: 'https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-Linux-x86_64'
+#        dest: /usr/local/bin/docker-compose
+#    - name: Chmod +x to the file
+#      file:
+#        dest: /usr/local/bin/docker-compose
+#        mode: +x

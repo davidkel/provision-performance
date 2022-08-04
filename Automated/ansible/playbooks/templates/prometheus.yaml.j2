@@ -11,7 +11,7 @@ scrape_configs:
     - job_name: {{ peer }}
       scrape_interval: 5s
       static_configs:
-        - targets: ['{{ hostvars[peer].ansible_host }}:9100', '{{ hostvars[peer].ansible_host }}:9443']
+        - targets: ['{{ hostvars[peer].ansible_host }}:9256', '{{ hostvars[peer].ansible_host }}:9100', '{{ hostvars[peer].ansible_host }}:9443']
 {% endfor %}
 
     # Orderers
@@ -20,7 +20,7 @@ scrape_configs:
     - job_name: {{ orderer }}
       scrape_interval: 5s
       static_configs:
-        - targets: ['{{ hostvars[orderer].ansible_host }}:9100', '{{ hostvars[orderer].ansible_host }}:8443']
+        - targets: ['{{ hostvars[orderer].ansible_host }}:9256', '{{ hostvars[orderer].ansible_host }}:9100', '{{ hostvars[orderer].ansible_host }}:8443']
 {% endfor %}
 
     # Clients
@@ -29,5 +29,5 @@ scrape_configs:
     - job_name: {{ client }}
       scrape_interval: 5s
       static_configs:
-        - targets: ['{{ hostvars[client].ansible_host }}:9100']
+        - targets: ['{{ hostvars[client].ansible_host }}:9256', '{{ hostvars[client].ansible_host }}:9100']
 {% endfor %}

@@ -4,9 +4,10 @@ __peer_name: '{{ inventory_hostname }}'
 # this is the core_peer_gossip_bootstrap variable. Computed by finding all  peers of same org minus the peer itself,
 # returning the first of them
 
-# TODO can't use 0.0.0.0 for itself as TLS complains
+
 __other_peers: '{{ groups[__peer_org] | difference(__peer_name) }}'
-#peer_gossip_bootstrap: '{{ hostvars[( __other_peers | first)].ansible_host if (__other_peers | length > 0) else "0.0.0.0" }}:7051'
+# can't use 0.0.0.0 for itself as TLS complains
+# peer_gossip_bootstrap: '{{ hostvars[( __other_peers | first)].ansible_host if (__other_peers | length > 0) else "0.0.0.0" }}:7051'
 peer_gossip_bootstrap: '{{ hostvars[( __other_peers | first)].ansible_host if (__other_peers | length > 0) else hostvars[__peer_name].ansible_host }}:7051'
 
 peer_mspid: '{{ __peer_org }}MSP'

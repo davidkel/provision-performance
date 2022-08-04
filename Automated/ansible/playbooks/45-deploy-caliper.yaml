@@ -4,7 +4,7 @@
 # 1 here for the benchmark support and another for the chaincode deployment means this can run as a standalone playbook. The only issue will be getting
 # access to the required certs for sut_network file generation
 
-# TODO: currently clients, may want to be more explicit in future
+# TODO: currently clients, may want to be more explicit (ie not call these clients) in future
 - name: Deploy caliper to clients
   hosts: clients
 
@@ -31,7 +31,18 @@
       production: yes
 
 
-# TODO: Deploy mosquitto to caliper manager client
+# Deploy mosquitto to caliper manager client
+- hosts: client0
+  remote_user: root
+  tasks:
+  - name: Pull down mosquitto
+    docker_image:
+      name: eclipse-mosquitto:latest
+
+  - name: Copy the mosquitto config
+    copy:
+      src: ./static-files/mosquitto
+      dest: /root
 
 - name: copy useful files to manager and worker
   hosts: clients
