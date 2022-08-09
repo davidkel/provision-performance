@@ -50,9 +50,9 @@ BENCHMARK=$DIR/benchmark.yaml
 echo "$(expand_template $WORKERS)" > $BENCHMARK
 
 if [ $REMOTE -ne "y" ]; then
-    ./launch-manager.sh $BENCHMARK -l
+    ./launch-manager.sh -b $BENCHMARK -l
 else
-    ./launch-manager.sh $BENCHMARK
+    ./launch-manager.sh -b $BENCHMARK
 fi
 
 #TODO:

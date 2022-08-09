@@ -58,13 +58,13 @@ You can alternatively run a benchmark utilizing a specific benchmark file using 
 
 #### To run a benchmark using remote workers
 
-- ./launch-manager.sh benchmarks/api/fabric/empty-contract-1of.yaml
+- ./launch-manager.sh -b ~/caliper-benchmarks/benchmarks/api/fabric/empty-contract-1of.yaml
 
-Note that the relative benchmark files are relative to ~/caliper-benchmarks
+Note that if you use a relative path for the benchmark file they are relative to ~/caliper-benchmarks
 
 #### To run a benchmark using local workers
 
-- ./launch-manager.sh ~/caliper-benchmarks/benchmarks/api/fabric/empty-contract-1of.yaml -l
+- ./launch-manager.sh -b ~/caliper-benchmarks/benchmarks/api/fabric/empty-contract-1of.yaml -l
 
 Grafana dashboard will be in port 3000 of this machine. Login admin/admin
 
