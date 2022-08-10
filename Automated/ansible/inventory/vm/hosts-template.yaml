@@ -2,21 +2,30 @@ all:
     children:
         peers:
             children:
-                peerOrg0:
+                peerOrg0:  # this defines the MSP id
                     hosts:
-                        # use fqdn rather than peer0 as it gets added to the TLS SANS
-                        # internal address is optional to get it added to the TLS SANS
-                        # this may not be required as I think it adds peer0 to the hosts file
-                        # but there won't by anything directly looking for peer0 in the ansible scripts either
+                        # the name peer0 get's added to the TLS SAN, relies on task to update all the machines hosts file
+                        # you could change the peer0 entry to the VM's real fqdn if you want as nothing refers to individual
+                        # peer machines in the ansible scripts
+                        # internal address is optional, it get's added to the TLS SANS which may be required if the machine has 2 addresses
                         peer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
+                        peer1: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
+                peerOrg1:
+                    hosts:
+                        # the name peer2 get's added to the TLS SAN, relies on task to update all the machines hosts file
+                        # you could change the peer2 entry to the VM's real fqdn if you want as nothing refers to individual
+                        # peer machines in the ansible scripts
+                        # internal address is optional, it get's added to the TLS SANS which may be required if the machine has 2 addresses
+                        peer2: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         orderers:
             children:
                 ordererOrg0:
                     hosts:
-                        # use fqdn rather than orderer0 as it gets added to the TLS SANS
-                        # internal address is optional to get it added to the TLS SANS
+                        # the name orderer0 get's added to the TLS SAN, relies on task to update all the machines hosts file
+                        # you could change the peer0 entry to the VM's real fqdn if you want as nothing refers to individual
+                        # orderer machines in the ansible scripts
                         orderer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         clients:
             hosts:
-                 # client0 is a special name so don't use fqdn
+                 # client0 is a special name so don't use fqdn, we must keep it as client0.
                  client0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }

@@ -1,5 +1,8 @@
 #!/usr/bin/env ansible-playbook
 # TODO: This is not idempotent. Once joined we shouldn't have to join again, state absent should unjoin
+# TODO: For now if we have already joined, this will fail, we can maybe solve this by using failed_when to only say if it fails if
+# it doesn't contain the message saying already joined or something like that
+# TODO: However this will work if restart-nodes was called previously as you must join again
 
 - name: Create ordererOrgs and peerOrgs maps to be used for following plays
   hosts: clients:peers:orderers    # only clients need these variables

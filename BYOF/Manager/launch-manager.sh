@@ -49,11 +49,11 @@ done
 DIR="$(dirname "$(realpath "$0")")"
 pushd ~/caliper-benchmarks
 
-if [ -z $BACKGROUND ]; then
-  set -x
-  npx caliper launch manager --caliper-workspace ./ --caliper-networkconfig $DIR/../Worker/sut-network.yaml --caliper-benchconfig $BENCHMARK_FILE --caliper-flow-only-test
-else
+if [ -z $LOCALWORKER ]; then
   set -x
   npx caliper launch manager --caliper-workspace ./ --caliper-networkconfig $DIR/dummy-network.yaml --caliper-benchconfig $BENCHMARK_FILE --caliper-flow-only-test --caliper-worker-remote true --caliper-worker-communication-method mqtt --caliper-worker-communication-address mqtt://$MQTT_ADDR
+else
+  set -x
+  npx caliper launch manager --caliper-workspace ./ --caliper-networkconfig $DIR/../Worker/sut-network.yaml --caliper-benchconfig $BENCHMARK_FILE --caliper-flow-only-test
 fi
 popd

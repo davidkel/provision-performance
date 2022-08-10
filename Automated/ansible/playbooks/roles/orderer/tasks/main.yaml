@@ -23,7 +23,7 @@
     ORDERER_GENERAL_TLS_ENABLED: true
     ORDERER_OPERATIONS_LISTENADDRESS: 0.0.0.0:8443
     ORDERER_METRICS_PROVIDER: prometheus
-    ORDERER_GENERAL_PROFILE_ENABLED: '{{ enable_profile }}'
+    ORDERER_GENERAL_PROFILE_ENABLED: '{{ enable_fabric_profile }}'
     ORDERER_GENERAL_LOCALMSPID: '{{ orderer_mspid }}'
     ORDERER_GENERAL_LOCALMSPDIR: '{{ orderer_mspdir }}'
     ORDERER_GENERAL_TLS_PRIVATEKEY: '{{ orderer_tls_privkey }}'

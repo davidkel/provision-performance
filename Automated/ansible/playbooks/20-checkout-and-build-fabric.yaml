@@ -1,4 +1,5 @@
 #!/usr/bin/env ansible-playbook
+# TODO: Improve performance only build the needed binaries on each of the systems, not all systems
 
 - name: Checkout hyperledger fabric to the given branch and build
   hosts: client0:peers:orderers
@@ -24,7 +25,7 @@
       file:
         path: '{{ dltDest }}/build/bin/{{item}}'
         state: absent
-      loop: ['{{target}}', configtxgen, cryptogen, osnadmin]
+      loop: ['{{target}}', configtxgen, cryptogen, osnadmin, configtxlator]
 
     - name: Build configtxgen and cryptogen
       make:

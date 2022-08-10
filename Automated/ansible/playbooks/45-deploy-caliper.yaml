@@ -6,6 +6,7 @@
 
 # TODO: currently clients, may want to be more explicit (ie not call these clients) in future
 - name: Deploy caliper to clients
+  remote_user: root
   hosts: clients
 
   tasks:

@@ -1,0 +1,30 @@
+## TODO
+
+- Fabric
+  - support v2 lifecycle (Optional)
+  - support couchdb (Optional)
+  - support multiple chaincodes ? (ie can deploy more than 1 chaincode)
+  - is they way we clear out peers and orderers ok ?
+- prom/graf
+  - need to create separate dashboards for nodes/processes, fabric metrics, fsc metrics (I have node, process and fabric on a single page at the moment)
+- Workload
+  - distinguish clients maybe (client0 runs: fabric generation, some of the fabric config, prometheus/grafana, caliper manager)
+    - eg have explicit definition of caliper-manager, caliper-worker for example
+  - run an ansible driven workload (how to setup workers and benchmark file)
+  - collect the results from prometheus/caliper etc
+  - add support for multiple channels
+  - deploy-caliper currently requires the deploy-benchmarks step so not a standalone option
+  - start-stop-observing includes mosquitto currently maybe move to run benchmark to make caliper stuff standalone
+- reliability
+  - support state of absent to remove things as well
+  - need to add retries for some things
+  - need to improve the idempotency so if a re-run is done then it will work and not affect anything
+  - idempotent with effiency on re-run: the task can do the same thing again and it results in no changes, but we should check to see if it's been done before trying to do it again to make a re-run more efficient
+- other
+  - support deploying more than one thing to the same VM, eg prom template may have issues
+  - support changes to inventory
+  - shutdown env
+  - address hardcoded paths (hopefully not too much to do)
+  - Use an external builder and remove need for docker
+  - rationlise remote_user vs become but this system effectively requires user to be root all the time, Whole system relies on being able to login as root in many places, In other places they use become which is pointless as it needs root login anyway
+  - look at need to gather facts everywhere, also we could set some facts on remote systems if it would be helpful

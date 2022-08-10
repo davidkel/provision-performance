@@ -1,3 +1,58 @@
 #!/usr/bin/env ansible-playbook
 
 # TODO
+# invoker needs to set the resultsPath variable, eg -e resultsPath=x/y/z
+
+
+- name: Copy the monitoring data to local
+  hosts: client0
+  remote_user: root
+  tasks:
+    - name: Take snapshot of prometheus data
+      uri:
+        url: http://localhost:9089/api/v1/admin/tsdb/snapshot
+        method: POST
+
+    - name: Zip the snapshotted data
+      archive:
+        path: /root/prometheus-data
+        dest: /root/prometheus-data.tar.gz
+
+    - name: Copy the snapshotted data to local
+      fetch:
+        src: /root/prometheus-data.tar.gz
+        dest: '{{ resultsPath }}'
+        flat: yes
+
+#- name: Copy nmon data to local
+#  hosts: all
+#  remote_user: root
+#  tasks:
+#    - name: Kill nmon before it modifies files again
+#      shell: pkill nmon || echo ok
+
+#    - name: Rename nmon file
+#      shell: mv /root/*.nmon /root/{{inventory_hostname}}.nmon
+
+ #   - name: Copy nmon data to local
+ #     fetch:
+ #       src: /root/{{inventory_hostname}}.nmon
+ #       dest: '{{ resultsPath }}'
+ #       flat: yes
+ #       validate_checksum: no
+
+- name: Copy the caliper report to local
+  hosts: client0
+  remote_user: root
+  tasks:
+#    - name: GZip the loadgen data
+#      archive:
+#        path: /root/loadgen/load_gen2/dist/totalLatencies.txt
+#        dest: /root/loadgen/load_gen2/dist/totalLatencies.txt.gz
+
+# TODO: support multiple reports if run-benchmarks supports it, maybe zip then up ?
+    - name: Copy the caliper report to local
+      fetch:
+        src: '{{ benchDest }}/report.html'
+        dest: '{{ resultsPath }}/report.html'
+        flat: yes

@@ -1,12 +1,12 @@
-# The following variables are optional, and organized by playbooks. You can override them via command line.
+# Variables that may need to be changed depending on what you want to achieve
+# TODO: Most of these are probably in the wrong place as they are currently inventory defined
+# of all but aren't relevant to the inventory
+# peers and orderers could be done on a conditional import so we don't have to have copy these
+# for each collection of inventory you might create.
+# may be able to move these to the playbooks/group_vars directory
 
-# initial-setup.yaml
-# None
 
-# generate-crypto.yaml
-# None
-
-# checkout-and-build.yaml
+# checkout-and-build-fabric.yaml
 dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
@@ -26,16 +26,17 @@ preferred_max_bytes: 512 KB
 
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
-# TODO: can we only deploy 1 chaincode ?
+# TODO: can only deploy 1 chaincode
 ccName: fixed-asset
-ccVersion: 1.0.1
+ccVersion: 1.0.0
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
 ccPath: '{{ benchDest }}/src/fabric/api/fixed-asset-base/go'
 endorsementPolicy: 'OR ("peerOrg0MSP.member","peerOrg1MSP.member")'
 ccInitArgs: '{"Args": ["init"]}'
 ccQueryArgs: '{"Args": ["emptycontract"]}'
 
-enable_profile: true
+# restart-nodes
+enable_fabric_profile: true
 
 # Resource control
 peerActiveCPUs: "{{ ansible_processor_vcpus | int }}"
@@ -43,26 +44,28 @@ peerTotalCPUs: 2
 ordererActiveCPUs: "{{ ansible_processor_vcpus | int }}"
 ordererTotalCPUs: 2
 
-# Defaults when launching site.yaml on it's own
+# TODO: Could replace this with Ansible Tags
+# Defaults when launching site.yaml without the -e "plays=..." option
+# the default is to get the latest fabric and benchmark code and restart fabric
+
 plays:
-  # - docker          # setting this off by default as it won't be needed in most cases
-  # - vm            # note defined in site.yaml currently
+  # - vm
   # - prereqs
-  # - gencrypto     # setting this off by default as it won't be needed in most cases
-  # - genchan       # not needed in most cases
-  - checkoutdlt         # needed in most cases
-  - checkoutbench       # needed in most cases
-  - downnodes       # needed in most cases
-  - upnodes         # needed in most cases
-  - createchan      # needed in most cases
+  # - deployprom
+  - checkoutfabric
+  - checkoutbench
+  # - gencrypto
+  # - caliper
+  # - genchan
+  - restartnodes
+  - createchan
   - createanch
-  - installcc       # needed in most cases
+  - deploycc
 
 ###############################################################
 # WARNING: Don't mess with any of the following.
 ###############################################################
 ansible_python_interpreter: python3
-# ansible_connection: docker
 
 channelIDsList: "{{ channelIDs.split(',') }}"
 orderers: '{{ groups["orderers"] }}'

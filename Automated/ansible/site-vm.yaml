@@ -1,9 +1,9 @@
 #!/usr/bin/env ansible-playbook
-#- import_playbook: playbooks/5-vm-prereqs.yaml
-#  when: 'plays=="all" or ("docker" in plays)'
+- import_playbook: playbooks/5-vm-prereqs.yaml
+  when: 'plays=="all" or ("docker" in plays)'
 
-#- import_playbook: playbooks/10-common-prereqs.yaml
-#  when: 'plays=="all" or ("prereqs" in plays)'
+- import_playbook: playbooks/10-common-prereqs.yaml
+  when: 'plays=="all" or ("prereqs" in plays)'
 
 - import_playbook: playbooks/15-deploy-prometheus.yaml
   when: 'plays=="all" or ("deployprom" in plays)'
