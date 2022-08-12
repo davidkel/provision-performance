@@ -18,12 +18,12 @@
         }
       ]
     },
-    "description": "Overview of the most important Fabric, system and Docker container metrics. ",
+    "description": "View of Fabric Peer and Orderer Metrics",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "gnetId": 893,
     "graphTooltip": 1,
-    "iteration": 1659101191310,
+    "iteration": 1660230106325,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -37,395 +37,8 @@
         },
         "id": 63,
         "panels": [],
-        "title": "Node Metrics",
+        "title": "Gossip Metrics",
         "type": "row"
-      },
-      {
-        "aliasColors": {
-          "{id=\"/\",instance=\"cadvisor:8080\",job=\"prometheus\"}": "#BA43A9"
-        },
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "editable": true,
-        "error": false,
-        "fill": 1,
-        "fillGradient": 0,
-        "grid": {},
-        "gridPos": {
-          "h": 6,
-          "w": 5,
-          "x": 0,
-          "y": 1
-        },
-        "hiddenSeries": false,
-        "id": 5,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null as zero",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": true,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "100 - (avg by (job)(irate(node_cpu_seconds_total{mode=\"idle\"}[$interval])) * 100)",
-            "hide": false,
-            "interval": "",
-            "legendFormat": "{{job}}",
-            "refId": "E"
-          }
-        ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "CPU",
-        "tooltip": {
-          "msResolution": true,
-          "shared": true,
-          "sort": 0,
-          "value_type": "cumulative"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": false,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:7341",
-            "format": "percent",
-            "label": "",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:7342",
-            "format": "short",
-            "logBase": 1,
-            "show": false
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "editable": true,
-        "error": false,
-        "fill": 0,
-        "fillGradient": 0,
-        "grid": {},
-        "gridPos": {
-          "h": 6,
-          "w": 6,
-          "x": 5,
-          "y": 1
-        },
-        "hiddenSeries": false,
-        "id": 59,
-        "legend": {
-          "alignAsTable": false,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 2,
-        "links": [],
-        "nullPointMode": "null as zero",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes) * 100",
-            "hide": false,
-            "interval": "",
-            "legendFormat": "{{job}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "Memory",
-        "tooltip": {
-          "msResolution": true,
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:1101",
-            "format": "percent",
-            "label": "",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:1102",
-            "format": "short",
-            "logBase": 1,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percentunit"
-          },
-          "overrides": []
-        },
-        "fill": 0,
-        "fillGradient": 0,
-        "gridPos": {
-          "h": 6,
-          "w": 5,
-          "x": 11,
-          "y": 1
-        },
-        "hiddenSeries": false,
-        "id": 26,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "maxDataPoints": 100,
-        "nullPointMode": "null",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "sum by (job)((node_filesystem_size_bytes - node_filesystem_free_bytes )/ node_filesystem_size_bytes)",
-            "hide": false,
-            "interval": "",
-            "intervalFactor": 2,
-            "legendFormat": "{{job}}",
-            "refId": "A",
-            "step": 1800
-          }
-        ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "Disk Space",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:606",
-            "format": "percentunit",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:607",
-            "format": "short",
-            "logBase": 1,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
-      },
-      {
-        "collapsed": false,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 7
-        },
-        "id": 47,
-        "panels": [],
-        "title": "Fabric Process Metrics",
-        "type": "row"
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "editable": true,
-        "error": false,
-        "fill": 5,
-        "fillGradient": 0,
-        "grid": {},
-        "gridPos": {
-          "h": 10,
-          "w": 12,
-          "x": 0,
-          "y": 8
-        },
-        "hiddenSeries": false,
-        "id": 1,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null as zero",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": true,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "sum by (groupname)(irate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
-            "hide": false,
-            "interval": "",
-            "legendFormat": "{{name}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "Total Fabric Process CPU Usage",
-        "tooltip": {
-          "msResolution": true,
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:2189",
-            "format": "percent",
-            "label": "",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:2190",
-            "format": "short",
-            "logBase": 1,
-            "show": false
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
       },
       {
         "fieldConfig": {
@@ -438,7 +51,7 @@
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
-              "fillOpacity": 30,
+              "fillOpacity": 0,
               "gradientMode": "none",
               "hideFrom": {
                 "legend": false,
@@ -446,7 +59,7 @@
                 "viz": false
               },
               "lineInterpolation": "linear",
-              "lineWidth": 2,
+              "lineWidth": 1,
               "pointSize": 5,
               "scaleDistribution": {
                 "type": "linear"
@@ -455,7 +68,92 @@
               "spanNulls": false,
               "stacking": {
                 "group": "A",
-                "mode": "normal"
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 1
+        },
+        "id": 65,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum(rate(gossip_privdata_validation_duration_sum[$interval])/rate(gossip_privdata_validation_duration_count[$interval])*1000) without (instance,channel)",
+            "interval": "",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Gossip Validation Duration",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
               },
               "thresholdsStyle": {
                 "mode": "off"
@@ -477,27 +175,50 @@
             },
             "unit": "decbytes"
           },
-          "overrides": []
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "peer2"
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
         },
         "gridPos": {
-          "h": 10,
-          "w": 12,
-          "x": 12,
-          "y": 8
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 1
         },
-        "id": 10,
-        "links": [],
+        "id": 67,
         "options": {
           "legend": {
             "calcs": [],
-            "displayMode": "table",
+            "displayMode": "list",
             "placement": "bottom"
           },
           "tooltip": {
             "mode": "single"
           }
         },
-        "pluginVersion": "8.3.4",
         "targets": [
           {
             "datasource": {
@@ -505,260 +226,84 @@
               "uid": "PBFA97CFB590B2093"
             },
             "exemplar": true,
-            "expr": "namedprocess_namegroup_memory_bytes{memtype='virtual'}",
-            "format": "time_series",
-            "hide": false,
-            "instant": false,
+            "expr": "sum(gossip_payload_buffer_size) without (instance,channel)",
             "interval": "",
-            "intervalFactor": 2,
-            "legendFormat": "{{groupname}}",
-            "refId": "B",
-            "step": 240
-          }
-        ],
-        "title": "Total Fabric Process Virtual Memory Usage",
-        "type": "timeseries"
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "editable": true,
-        "error": false,
-        "fill": 0,
-        "fillGradient": 0,
-        "grid": {},
-        "gridPos": {
-          "h": 10,
-          "w": 24,
-          "x": 0,
-          "y": 18
-        },
-        "hiddenSeries": false,
-        "id": 38,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null as zero",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "sum by (groupname)(irate(namedprocess_namegroup_cpu_seconds_total{}[$interval])) * 100",
-            "hide": false,
-            "interval": "",
-            "legendFormat": "{{groupname}}",
+            "legendFormat": "{{job}}",
             "refId": "A"
           }
         ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "CPU Usage",
-        "tooltip": {
-          "msResolution": true,
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:1693",
-            "format": "percent",
-            "label": "",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:1694",
-            "format": "short",
-            "logBase": 1,
-            "show": false
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "editable": true,
-        "error": false,
-        "fill": 0,
-        "fillGradient": 0,
-        "grid": {},
-        "gridPos": {
-          "h": 17,
-          "w": 19,
-          "x": 0,
-          "y": 28
-        },
-        "hiddenSeries": false,
-        "id": 39,
-        "legend": {
-          "alignAsTable": true,
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "rightSide": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 2,
-        "links": [],
-        "nullPointMode": "null as zero",
-        "options": {
-          "alertThreshold": true
-        },
-        "percentage": false,
-        "pluginVersion": "8.3.4",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "sum by (groupname) (namedprocess_namegroup_memory_bytes{memtype='virtual'})",
-            "hide": false,
-            "interval": "",
-            "intervalFactor": 2,
-            "legendFormat": "{{groupname}}",
-            "refId": "B",
-            "step": 240
-          }
-        ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "Virtual Memory Usage",
-        "tooltip": {
-          "msResolution": true,
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "$$hashKey": "object:1101",
-            "format": "decbytes",
-            "label": "",
-            "logBase": 1,
-            "show": true
-          },
-          {
-            "$$hashKey": "object:1102",
-            "format": "short",
-            "logBase": 1,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false
-        }
+        "title": "Gossip Payload Buffer Size",
+        "type": "timeseries"
       },
       {
         "fieldConfig": {
           "defaults": {
             "color": {
-              "mode": "thresholds"
+              "mode": "palette-classic"
             },
             "custom": {
-              "align": "left",
-              "displayMode": "auto"
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "never",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
             },
-            "decimals": 2,
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
                 {
-                  "color": "rgba(245, 54, 54, 0.9)",
+                  "color": "green",
                   "value": null
                 },
                 {
-                  "color": "rgba(237, 129, 40, 0.89)",
-                  "value": 10000000
-                },
-                {
-                  "color": "rgba(50, 172, 45, 0.97)",
-                  "value": 25000000
+                  "color": "red",
+                  "value": 80
                 }
               ]
             },
-            "unit": "decbytes"
+            "unit": "ms"
           },
           "overrides": []
         },
         "gridPos": {
-          "h": 17,
-          "w": 5,
-          "x": 19,
-          "y": 28
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 1
         },
-        "id": 37,
-        "links": [],
+        "id": 69,
         "options": {
-          "footer": {
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
           },
-          "showHeader": true
+          "tooltip": {
+            "mode": "single"
+          }
         },
-        "pluginVersion": "8.3.4",
         "targets": [
           {
             "datasource": {
@@ -766,28 +311,14 @@
               "uid": "PBFA97CFB590B2093"
             },
             "exemplar": true,
-            "expr": "namedprocess_namegroup_memory_bytes{memtype='virtual'}",
-            "hide": false,
+            "expr": "sum(rate(gossip_privdata_commit_block_duration_sum[$interval])/rate(gossip_privdata_commit_block_duration_count[$interval])*1000) without (instance,channel)",
             "interval": "",
-            "intervalFactor": 2,
-            "legendFormat": "{{groupname}}",
-            "refId": "C",
-            "step": 240
+            "legendFormat": "{{job}}",
+            "refId": "A"
           }
         ],
-        "title": "VIrtual Memory",
-        "transformations": [
-          {
-            "id": "reduce",
-            "options": {
-              "includeTimeField": false,
-              "reducers": [
-                "last"
-              ]
-            }
-          }
-        ],
-        "type": "table"
+        "title": "Gossip Commit Block Duration",
+        "type": "timeseries"
       },
       {
         "collapsed": false,
@@ -795,7 +326,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 45
+          "y": 9
         },
         "id": 45,
         "panels": [],
@@ -858,7 +389,7 @@
           "h": 11,
           "w": 8,
           "x": 0,
-          "y": 46
+          "y": 10
         },
         "id": 41,
         "options": {
@@ -944,7 +475,7 @@
           "h": 11,
           "w": 8,
           "x": 8,
-          "y": 46
+          "y": 10
         },
         "id": 43,
         "options": {
@@ -1030,7 +561,7 @@
           "h": 11,
           "w": 8,
           "x": 16,
-          "y": 46
+          "y": 10
         },
         "id": 42,
         "options": {
@@ -1067,7 +598,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 57
+          "y": 21
         },
         "id": 49,
         "panels": [],
@@ -1130,7 +661,7 @@
           "h": 11,
           "w": 8,
           "x": 0,
-          "y": 58
+          "y": 22
         },
         "id": 50,
         "options": {
@@ -1216,7 +747,7 @@
           "h": 11,
           "w": 8,
           "x": 8,
-          "y": 58
+          "y": 22
         },
         "id": 55,
         "options": {
@@ -1236,7 +767,7 @@
               "uid": "PBFA97CFB590B2093"
             },
             "exemplar": true,
-            "expr": "rate(endorser_proposals_received[$interval])",
+            "expr": "irate(endorser_proposals_received[$interval])",
             "hide": false,
             "interval": "0.01m",
             "legendFormat": "{{job}}",
@@ -1302,7 +833,7 @@
           "h": 11,
           "w": 8,
           "x": 16,
-          "y": 58
+          "y": 22
         },
         "id": 52,
         "options": {
@@ -1338,7 +869,7 @@
           "h": 1,
           "w": 24,
           "x": 0,
-          "y": 69
+          "y": 33
         },
         "id": 54,
         "panels": [],
@@ -1401,93 +932,7 @@
           "h": 11,
           "w": 6,
           "x": 0,
-          "y": 70
-        },
-        "id": 56,
-        "options": {
-          "legend": {
-            "calcs": [],
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        },
-        "targets": [
-          {
-            "datasource": {
-              "type": "prometheus",
-              "uid": "PBFA97CFB590B2093"
-            },
-            "exemplar": true,
-            "expr": "sum without(channel) (rate(ledger_block_processing_time_sum[$interval])) / sum without(channel) (rate(ledger_block_processing_time_count[$interval]))",
-            "hide": false,
-            "interval": "0.01m",
-            "legendFormat": "{{job}}",
-            "refId": "A"
-          }
-        ],
-        "title": "Block Processing Time",
-        "type": "timeseries"
-      },
-      {
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "mode": "palette-classic"
-            },
-            "custom": {
-              "axisLabel": "",
-              "axisPlacement": "auto",
-              "barAlignment": 0,
-              "drawStyle": "line",
-              "fillOpacity": 0,
-              "gradientMode": "none",
-              "hideFrom": {
-                "legend": false,
-                "tooltip": false,
-                "viz": false
-              },
-              "lineInterpolation": "linear",
-              "lineWidth": 1,
-              "pointSize": 5,
-              "scaleDistribution": {
-                "type": "linear"
-              },
-              "showPoints": "auto",
-              "spanNulls": false,
-              "stacking": {
-                "group": "A",
-                "mode": "none"
-              },
-              "thresholdsStyle": {
-                "mode": "off"
-              }
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 80
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": []
-        },
-        "gridPos": {
-          "h": 11,
-          "w": 6,
-          "x": 6,
-          "y": 70
+          "y": 34
         },
         "id": 57,
         "options": {
@@ -1572,8 +1017,94 @@
         "gridPos": {
           "h": 11,
           "w": 6,
+          "x": 6,
+          "y": 34
+        },
+        "id": 56,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "sum without(channel) (rate(ledger_block_processing_time_sum[$interval])) / sum without(channel) (rate(ledger_block_processing_time_count[$interval]))",
+            "hide": false,
+            "interval": "0.01m",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Block Processing Time",
+        "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "s"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 11,
+          "w": 6,
           "x": 12,
-          "y": 70
+          "y": 34
         },
         "id": 58,
         "options": {
@@ -1658,7 +1189,7 @@
           "h": 11,
           "w": 6,
           "x": 18,
-          "y": 70
+          "y": 34
         },
         "id": 61,
         "options": {
@@ -1686,9 +1217,93 @@
         ],
         "title": "Blockchain height",
         "type": "timeseries"
+      },
+      {
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 45
+        },
+        "id": 71,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "single"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PBFA97CFB590B2093"
+            },
+            "exemplar": true,
+            "expr": "(sum(irate(ledger_blockchain_height[$interval])) by (job))",
+            "interval": "",
+            "legendFormat": "{{job}}",
+            "refId": "A"
+          }
+        ],
+        "title": "blockheight rate",
+        "type": "timeseries"
       }
     ],
-    "refresh": "5s",
+    "refresh": false,
     "schemaVersion": 34,
     "style": "dark",
     "tags": [],
@@ -1864,8 +1479,8 @@
       ]
     },
     "time": {
-      "from": "now-5m",
-      "to": "now"
+      "from": "2022-08-10T15:06:58.677Z",
+      "to": "2022-08-10T15:29:33.864Z"
     },
     "timepicker": {
       "refresh_intervals": [
@@ -1893,7 +1508,7 @@
       ]
     },
     "timezone": "browser",
-    "title": "HLF Performance Review",
+    "title": "HLF Metrics",
     "uid": "UeOYeJpWy",
     "version": 1,
     "weekStart": ""

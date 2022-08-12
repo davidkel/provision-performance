@@ -1,9 +1,15 @@
 process_names:
+  # orderer
   - name: "{{.Comm}}.{{.PID}}"
     exe:
     - orderer
+  # peer
   - name: "{{.Comm}}.{{.PID}}"
     exe:
     - peer
     cmdline:
     - node start
+  # node (caliper)
+  - name: "{{.Comm}}.{{.PID}}"
+    exe:
+    - node
