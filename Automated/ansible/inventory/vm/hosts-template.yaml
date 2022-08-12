@@ -4,28 +4,27 @@ all:
             children:
                 peerOrg0:  # this defines the MSP id
                     hosts:
-                        # the name peer0 get's added to the TLS SAN, relies on task to update all the machines hosts file
-                        # you could change the peer0 entry to the VM's real fqdn if you want as nothing refers to individual
-                        # peer machines in the ansible scripts
+                        # the name peer0 get's added to the TLS SAN, relies on a task to update all the machines hosts file for access to work
+                        # for grafana to distinguish nodes, it looks for peer nodes to be called peer*, so don't use the fqdn of the machine
                         # internal address is optional, it get's added to the TLS SANS which may be required if the machine has 2 addresses
                         peer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
                         peer1: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
-                peerOrg1:
+                peerOrg1: # this defines the MSP id
                     hosts:
-                        # the name peer2 get's added to the TLS SAN, relies on task to update all the machines hosts file
-                        # you could change the peer2 entry to the VM's real fqdn if you want as nothing refers to individual
-                        # peer machines in the ansible scripts
+                        # the name peer2 get's added to the TLS SAN, relies on a task to update all the machines hosts file for access to work
+                        # for grafana to distinguish nodes, it looks for peer nodes to be called peer*, so don't use the fqdn of the machine
                         # internal address is optional, it get's added to the TLS SANS which may be required if the machine has 2 addresses
                         peer2: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         orderers:
             children:
-                ordererOrg0:
+                ordererOrg0: # this defines the MSP id
                     hosts:
-                        # the name orderer0 get's added to the TLS SAN, relies on task to update all the machines hosts file
-                        # you could change the peer0 entry to the VM's real fqdn if you want as nothing refers to individual
-                        # orderer machines in the ansible scripts
+                        # the name orderer0 get's added to the TLS SAN, relies on a task to update all the machines hosts file for access to work
+                        # for grafana to distinguish nodes, it looks for orderer nodes to be called orderer*, so don't use the fqdn of the machine
+                        # internal address is optional, it get's added to the TLS SANS which may be required if the machine has 2 addresses
                         orderer0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }
         clients:
             hosts:
                  # client0 is a special name so don't use fqdn, we must keep it as client0.
+                 # for grafana to distinguish nodes, it looks for client nodes to be called client*, so don't use the fqdn of the machine
                  client0: { ansible_host: x.x.x.x, ansible_ssh_pass: some-pass, internal_addr: x.x.x.x }

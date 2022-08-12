@@ -15,6 +15,7 @@
     - name: Pull prometheus docker image
       docker_image:
         name: prom/prometheus:v2.32.1
+        source: pull
 
     - name: Fill prometheus template
       template:
@@ -24,6 +25,7 @@
     - name: Pull grafana docker image
       docker_image:
         name: grafana/grafana:8.3.4
+        source: pull
 
     - name: Copy the grafana config
       copy:

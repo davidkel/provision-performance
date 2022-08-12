@@ -52,7 +52,7 @@ docker run -it --name controller --rm -v $PWD/ansible:/ansible controller:latest
 - change to the ansible directory
 - run `ssh-keygen -t rsa -b 2048` to generate a local ssh key pair if you haven't done this already (or you are using the controller docker container)
 - run `apt install -y sshpass`
-- run `ANSIBLE_HOST_KEY_CHECKING=False ./site.yaml -e plays="all"` to perform an initial deploy and run
+- run `ANSIBLE_HOST_KEY_CHECKING=False ./site-vm.yaml -e plays="all"` to perform an initial deploy and run
 
 - Optionally bring up the monitoring and observing processes (see next sections)
 - Optionally run a caliper performance benchmark
@@ -74,6 +74,10 @@ ansible-playbook -e plays="monitstop" playbooks/80-start-stop-observing.yaml
 ansible-playbook -e plays="serverstart" playbooks/80-start-stop-observing.yaml
 ```
 
+#### accessing grafana
+grafana is available on the client0 machine port 3000 (userid: admin, password: admin)
+prometheus is available on the client0 machine port 9090
+
 ```bash
 ansible-playbook -e plays="serverstop" playbooks/80-start-stop-observing.yaml
 ```
@@ -87,7 +91,7 @@ ansible-playbook -e plays="serverstop" playbooks/80-start-stop-observing.yaml
 - nano ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml (workers: 2, tps 100)
 - ./launch-manager.sh -b ~/caliper-benchmarks/benchmarks/api/fabric/create-asset-100.yaml -l
 
-Also you could use remote workers
+Also you could use remote workers (ensure you have started the servers as it starts mosquitto needed for remote workers)
 
 - ssh into another client0 shell
 - cd ~/Worker

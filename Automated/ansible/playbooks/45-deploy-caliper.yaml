@@ -39,6 +39,7 @@
   - name: Pull down mosquitto
     docker_image:
       name: eclipse-mosquitto:latest
+      source: pull
 
   - name: Copy the mosquitto config
     copy:

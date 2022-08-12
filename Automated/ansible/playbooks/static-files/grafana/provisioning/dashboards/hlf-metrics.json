@@ -1158,7 +1158,7 @@
               "scaleDistribution": {
                 "type": "linear"
               },
-              "showPoints": "auto",
+              "showPoints": "never",
               "spanNulls": false,
               "stacking": {
                 "group": "A",
@@ -1242,7 +1242,7 @@
               "scaleDistribution": {
                 "type": "linear"
               },
-              "showPoints": "auto",
+              "showPoints": "never",
               "spanNulls": false,
               "stacking": {
                 "group": "A",
@@ -1479,8 +1479,8 @@
       ]
     },
     "time": {
-      "from": "2022-08-10T15:06:58.677Z",
-      "to": "2022-08-10T15:29:33.864Z"
+      "from": "now-5m",
+      "to": "now"
     },
     "timepicker": {
       "refresh_intervals": [
