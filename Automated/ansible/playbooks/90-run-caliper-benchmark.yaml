@@ -1,0 +1,42 @@
+#!/usr/bin/env ansible-playbook
+
+
+# TODO: At the moment all this does is control the mqtt service but what do we want when the benchmark part is automated ?
+# 1. start mqtt, run benchmark, stop mqtt - plays=?
+# 2. run benchmark (don't do anything with mqtt) - plays=?
+# 3. what should it do if no plays are defined (ie just run it manually)
+
+# unfortunately this won't work in the docker deployment as the volume mounts use the host filesystem and not
+# the container filesystem (as the daemon used is the host daemon), also the network specified is not correct
+# as they need to use the docker network not the host network (which is what a VM would need)
+# possible solns would be
+# 1. maybe have a /root/.../ subdir and ensure the files are on the host file system and have a variable to control the network
+# 2. run these natively
+# 3. try true DinD
+# for now you need to start it manually from the host environment (see READMe.md in Automated directory)
+- name: Control mqtt broker
+  hosts: client0
+  remote_user: root
+  tasks:
+    - name: Start the mosquitto server
+      when: ansible_connection != "docker" and 'mqttstart' in plays
+      shell: docker run -d --user root                                         \
+                -v /root/mosquitto:/mosquitto/config                           \
+               --network host                                                  \
+               --name mqtt                                                     \
+               eclipse-mosquitto:latest
+
+    - name: Stop mosquitto
+      when: "'mqttstop' in plays"
+      docker_container:
+        name: mqtt
+        image: eclipse-mosquitto:latest
+        state: absent
+
+# TODO:
+# 1. need to use caliper-benchmark templates and generate a benchmark, vars to be provided
+# 2. need to remote launch workers
+#- name: Run caliper benchmark
+#  hosts: client0
+#  remote_user: root
+#  tasks:

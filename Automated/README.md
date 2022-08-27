@@ -41,6 +41,8 @@ save the file
 inventory = ./inventory/vm/hosts.yaml
 ```
 
+or if you prefer you can run playbooks with the -i option to explicitly provide the hosts file to use
+
 - Create your `hosts.yaml` file in the `ansible/inventory/vm/hosts.yaml` file. There is a `hosts-template.yaml` which provides guidance on creating this.
 -. Either install ansible or you could build and use the `ansible/provision-vms/docker/Dockerfile.controller` to create an ansible environment
 
@@ -68,19 +70,30 @@ ansible-playbook -e plays="monitstart" playbooks/80-start-stop-observing.yaml
 ansible-playbook -e plays="monitstop" playbooks/80-start-stop-observing.yaml
 ```
 
-### starting/stopping the prometheus/grafana/mosquitto servers
+### starting/stopping the prometheus/grafana servers
 
 ```bash
 ansible-playbook -e plays="serverstart" playbooks/80-start-stop-observing.yaml
 ```
 
-#### accessing grafana
-grafana is available on the client0 machine port 3000 (userid: admin, password: admin)
-prometheus is available on the client0 machine port 9090
-
 ```bash
 ansible-playbook -e plays="serverstop" playbooks/80-start-stop-observing.yaml
 ```
+
+### starting/stopping caliper mqtt broker
+
+```bash
+ansible-playbook -e plays="mqttstart" playbooks/90-run-caliper-benchmark.yaml
+```
+
+```bash
+ansible-playbook -e plays="mqttstop" playbooks/90-run-caliper-benchmark.yaml
+```
+
+#### accessing grafana
+
+grafana is available on the client0 machine port 3000 (userid: admin, password: admin)
+prometheus is available on the client0 machine port 9090
 
 ### manually running a caliper benchmark in Bare Metal Environment
 
@@ -134,9 +147,18 @@ You can't use the ansible scripts here
 In the host (ie your machine) enviroment:
 
 - cd Automated/ansible/playbooks/static-files
+
+#### mqtt
+
 - docker run --rm -d --name mqtt -p 1883:1883 -p 9001:9001 --network docker_default -v $PWD/mosquitto:/mosquitto/config eclipse-mosquitto:latest
+
+#### Prometheus
+
 - copy /root/prometheus.yml file from client0 docker container over to this Automated/ansible/playbooks/static-files
 - docker run --rm -d --name prom -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml --network docker_default -p 9090:9090 prom/prometheus:v2.32.1
+
+#### Grafana
+
 - docker run --rm -d --name graf -v $PWD/grafana/provisioning:/etc/grafana/provisioning -e "GF_SECURITY_ADMIN_PASSWORD=admin" -e "GF_USERS_ALLOW_SIGN_UP=false" --network docker_default -p 3000:3000 grafana/grafana:8.3.4
 - change the datasource from localhost to prom in the grafana UI on localhost:3000
 

@@ -11,7 +11,7 @@
 - import_playbook: playbooks/20-checkout-and-build-fabric.yaml
   when: 'plays=="all" or ("checkoutfabric" in plays)'
 
-- import_playbook: playbooks/30-checkout-benchmarks.yaml
+- import_playbook: playbooks/30-checkout-caliper-benchmarks.yaml
   when: 'plays=="all" or ("checkoutbench" in plays)'
 
 - import_playbook: playbooks/40-generate-crypto.yaml
@@ -23,7 +23,7 @@
 - import_playbook: playbooks/50-generate-channel.yaml
   when: 'plays=="all" or ("genchan" in plays)'
 
-- import_playbook: playbooks/55-restart-nodes.yaml
+- import_playbook: playbooks/55-restart-fabric-nodes.yaml
   when: 'plays=="all" or ("restartnodes" in plays)'
 
 - import_playbook: playbooks/60-create-channels.yaml
