@@ -1,0 +1,12 @@
+# eg ['lender', borrower, approver]
+- name: Collect list of fsc node types
+  set_fact:
+    fscvars_nodeTypeList: "{{ (fscvars_nodeTypeList | default([]) + hostvars[item].group_names) | difference('fsc') }}"
+  with_items: "{{ groups['fsc'] }}"
+
+# eg [lender -> [lender0, lender1], borrower -> [borrower0], approver -> [approver0] ]
+- name: Create dict of format [fsc node type] => [ fsc nodes ]
+  set_fact:
+    fscvars_nodesByType: "{{ (fscvars_nodesByType | default({})) | combine( {item: groups[item]} ) }}"
+  with_items: "{{ fscvars_nodeTypeList }}"
+

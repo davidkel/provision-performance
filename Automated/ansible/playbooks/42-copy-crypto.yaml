@@ -1,0 +1,9 @@
+- name: Copy Crypto materials from client0 to all peers, orderers and other clients (caliper workers use path references, so need to copy as well as cannot embed)
+  hosts: all
+  remote_user: root
+
+  roles:
+    - role: util/copy_remote_to_remotes
+      src: /root/crypto-config
+      src_hostname: 'client0'
+      dest_groups: [clients, peers, orderers, fsc]

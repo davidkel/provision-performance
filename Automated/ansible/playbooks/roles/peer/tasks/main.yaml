@@ -25,6 +25,7 @@
       CORE_OPERATIONS_LISTENADDRESS: 0.0.0.0:9443
       CORE_METRICS_PROVIDER: prometheus
       CORE_PEER_PROFILE_ENABLED: '{{ enable_fabric_profile }}'
+      CORE_PEER_LIMITS_CONCURRENCY_GATEWAYSERVICE: '{{ gateway_request_limit }}'
 
       CORE_PEER_ID: '{{ peer_name }}'
       CORE_PEER_ADDRESS: '0.0.0.0:7051'

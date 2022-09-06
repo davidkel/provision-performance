@@ -32,6 +32,7 @@
     ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE: '{{ orderer_tls_cert }}'
     ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY: '{{ orderer_tls_privkey }}'
     ORDERER_GENERAL_CLUSTER_ROOTCAS: '{{ orderer_tls_rootcas }}'
+    ORDERER_GENERAL_CLUSTER_SENDBUFFERSIZE: '{{ orderer_sendbuffersize }}'
   retries: 3
   delay: 10
   register: result

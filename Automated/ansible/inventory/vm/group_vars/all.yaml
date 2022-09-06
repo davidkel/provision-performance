@@ -36,7 +36,9 @@ ccInitArgs: '{"Args": ["init"]}'
 ccQueryArgs: '{"Args": ["emptycontract"]}'
 
 # restart-nodes
-enable_fabric_profile: true
+enable_fabric_profile: false
+gateway_request_limit: 20000
+orderer_sendbuffersize: 1000
 
 # Resource control
 peerActiveCPUs: "{{ ansible_processor_vcpus | int }}"

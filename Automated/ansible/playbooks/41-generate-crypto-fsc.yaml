@@ -1,0 +1,42 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: clients
+  remote_user: root
+
+  roles:
+    - util/orgvars
+    - util/fscvars
+
+- name: Generate fsc crypto materials on the Client
+  # `hosts` could simply be client0, but thing is, we need ansible facts of other hosts
+  # specifically IP addresses of peers and orderers for generating crypto config.
+  # And ansible is being weird and not letting us access the facts unless the play is run for
+  # all hosts
+  hosts: client0:fsc
+  remote_user: root
+
+  tasks:
+    - name: Fill templates of crypto-config-extend.yaml.j2
+      template:
+          dest: /root/crypto-config-extend.yaml
+          src: ./templates/crypto-config-extend.yaml.j2
+      when: 'inventory_hostname == "client0"'
+
+    - name: Run cryptogen to extend fabric crypto material for fsc
+      shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config.yaml
+      args:
+        chdir: /root
+      when: 'inventory_hostname == "client0"'
+
+    - name: Fill templates of crypto-config-fsc.yaml.j2
+      template:
+          dest: /root/crypto-config-fsc.yaml
+          src: ./templates/crypto-config-fsc.yaml.j2
+      when: 'inventory_hostname == "client0"'
+
+    - name: Run cryptogen to generate fsc crypto material
+      shell: PATH={{ dltDest }}/build/bin cryptogen generate --config=/root/crypto-config-fsc.yaml
+      args:
+        chdir: /root
+      when: 'inventory_hostname == "client0"'

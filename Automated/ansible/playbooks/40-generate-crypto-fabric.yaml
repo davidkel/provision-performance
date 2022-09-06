@@ -32,12 +32,13 @@
         chdir: /root
       when: 'inventory_hostname == "client0"'
 
-- name: Copy Crypto materials from client0 to all peers, orderers and other clients (caliper workers use path references)
-  hosts: clients:peers:orderers
-  remote_user: root
+# Moved to a separate playbook
+#- name: Copy Crypto materials from client0 to all peers, orderers and other clients (caliper workers use path references, so need to copy as well as cannot embed)
+#  hosts: clients:peers:orderers
+#  remote_user: root
 
-  roles:
-    - role: util/copy_remote_to_remotes
-      src: /root/crypto-config
-      src_hostname: 'client0'
-      dest_groups: [clients, peers, orderers]
+#  roles:
+#    - role: util/copy_remote_to_remotes
+#      src: /root/crypto-config
+#      src_hostname: 'client0'
+#      dest_groups: [clients, peers, orderers]

@@ -1,0 +1,27 @@
+PeerOrgs:
+  - Name: fsc
+    Domain: fsc
+    EnableNodeOUs: false
+    Users:
+      Count: 3
+      Names:
+      - approver
+      - borrower
+      - lender
+
+    Specs:
+
+    {% for fscnodeType in fscvars_nodesByType %}
+      {% for fscnode in fscvars_nodesByType[fscnodeType] %}
+
+      - Hostname: {{ fscnode }}
+        CommonName: {{ fscnode }} # overrides the above implicit inclusion of .fsc
+        SANS:
+          - {{ fscnode }}
+          - {{ hostvars[fscnode].ansible_host }}
+          {% if hostvars[fscnode].internal_addr is defined %}
+
+          - {{ hostvars[fscnode].internal_addr }}
+          {% endif %}
+      {% endfor %}
+    {% endfor %}

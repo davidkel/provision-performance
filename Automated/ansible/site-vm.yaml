@@ -14,7 +14,10 @@
 - import_playbook: playbooks/30-checkout-caliper-benchmarks.yaml
   when: 'plays=="all" or ("checkoutbench" in plays)'
 
-- import_playbook: playbooks/40-generate-crypto.yaml
+- import_playbook: playbooks/40-generate-crypto-fabric.yaml
+  when: 'plays=="all" or ("gencrypto" in plays)'
+
+- import_playbook: playbooks/42-copy-crypto.yaml
   when: 'plays=="all" or ("gencrypto" in plays)'
 
 - import_playbook: playbooks/45-deploy-caliper.yaml

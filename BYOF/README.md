@@ -31,7 +31,7 @@ This will install node and GoLang using the version switches NVM and GVM respect
 
 It also installs docker to run the sut-services of prometheus exporters, it does not install docker-compose. If you use test-network then you can either install docker-compose or change the network.sh script file to use `docker compose` instead of `docker-compose`
 
-- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/SUT/install.sh | bash -s
+- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/BYOF/SUT/install.sh | bash -s
 - exit and re-login
 - Install/setup your fabric environment
 - cd provision-performance/BYOF/SUT
@@ -41,7 +41,7 @@ It also installs docker to run the sut-services of prometheus exporters, it does
 
 This will setup a Prometheus and Grafana server (with a pre-built dashboard called HLF Performances) as well as provide an environment to run the Caliper manager process (ie an mqtt broker and Caliper installed in the caliper-benchmarks directory)
 
-- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/Manager/install.sh | bash -s
+- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/BYOF/Manager/install.sh | bash -s
 - exit and re-login
 - cd provision-performance/BYOF/Manager
 - ./configure-prometheus.sh -i <SUT_IP_ADDR> -p <PEER_OPERATIONS_PORTS> -o <ORDERER_OPERATIONS_PORTS> eg ./configure-prometheus.sh -i 192.168.55.2 -p 9444,9445 -o 9443
@@ -74,7 +74,7 @@ This will setup a Worker node (or the manager node) to run remote caliper worker
 
 Only run the install script if you aren't the manager and just a standalone worker
 
-- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/Worker/install.sh | bash -s
+- curl -ssL https://raw.githubusercontent.com/davidkel/provision-performance/main/BYOF/Worker/install.sh | bash -s
 - exit and re-login
 - cd provision-performance/BYOF/Worker
 - copy over a user cert and key file and the peer tls ca cert file

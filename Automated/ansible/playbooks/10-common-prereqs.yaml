@@ -37,7 +37,7 @@
     - role: pkgs/docker
 
 - name: Install build-essential
-  hosts: peers:orderers:clients
+  hosts: all
   remote_user: root
   tasks:
     - name: Install build-essential
@@ -47,13 +47,13 @@
         update_cache: yes
 
 - name: Install GoLang
-  hosts: peers:orderers:clients
+  hosts: all
   remote_user: root
   roles:
     - role: pkgs/golang
 
 - name: Install resource monitoring and other helper tools
-  hosts: peers:orderers:clients
+  hosts: all
   remote_user: root
   tasks:
     - name: Install prometheus node exporter
@@ -84,9 +84,9 @@
         src: ./static-files/procexp.yml
         dest: /root
 
-    - name: Install iftop. nmap, netcat, nmon, htop, tmux
+    - name: Install iftop. nmap, netcat, nmon, htop, tmux, iotop
       apt:
-        name: [iftop, nmap, netcat, nmon, htop, tmux]
+        name: [iftop, nmap, netcat, nmon, htop, tmux, iotop]
         state: present
 
 - hosts: client0
