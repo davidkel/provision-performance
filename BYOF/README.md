@@ -206,3 +206,57 @@ now with a more powerful 4 cpu worker I get with 10 workers
 ```
 
 I think now the SUT is the bottleneck
+
+## Example Multipass setup for testing
+First provision 3 VMs
+
+- multipass launch -c 4 -d 20G -m 4G -n sut
+- multipass launch -c 2 -d 10G -m 1G -n manager
+- multipass launch -c 2 -d 10G -m 1G -n worker
+
+Perform the install on each of the machines
+
+### setup test-network on the SUT 
+
+- curl -sSL https://bit.ly/2ysbOFE | bash -s
+- sudo curl -L https://github.com/docker/compose/releases/download/v2.6.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+- sudo chmod +x /usr/local/bin/docker-compose
+- cd fabric-samples/test-network
+- ./network.sh up createChannel
+- ./network.sh deployCC -ccn fixed-asset -ccp ../../caliper-benchmarks/src/fabric/api/fixed-asset-base/go -ccl go -cccg ../../caliper-benchmarks/src/fabric/api/fixed-asset-base/collections-config.json
+./sut-services.sh start
+
+### setup manager
+after the install use multipass list to get ipaddr of sut. if the sut external ip is 192.168.55.2 then...
+./configure-prometheus.sh -i 192.168.55.2 -p 9444,9445 -o 9443
+./manager-services.sh start
+
+### setup workers (manager is also considered a worker)
+
+copy over a user cert and key file and the peer tls ca cert file
+- cd ~/provision-performance/BYOF/Worker (store user.pem, key.pem, tls.pem in this directory)
+- cat ~/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+- cat ~/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+- cat ~/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+- cd ~/provision-performance/BYOF/Worker
+- ./configure-network-config.sh
+  - press enter to accept default
+  - press enter to accept default
+  - press enter to accept default
+  - provide ip address of sut machine + port, eg 192.168.55.2:7051
+  - peer0.org1.example.com
+  - user.pem
+  - key.pem
+  - tls.pem
+
+### run an example benchmark
+Setup some remote workers on worker machine (and optionally manager), so in the worker directory
+- ./launch-workers.sh -w 10 -i 192.168.55.100 (use multipass list to get the ip address of the manager)
+
+On the manager
+- nano ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml (set the workers to 10)
+- ./launch-manager.sh -b ~/caliper-benchmarks/benchmarks/api/fabric/no-op.yaml -i 127.0.0.1
+
+### view gragana
+
+http://<manager ip address>:3000

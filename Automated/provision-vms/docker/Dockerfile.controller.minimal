@@ -3,6 +3,6 @@ FROM ubuntu:20.04
 # Update and upgrade repo
 RUN apt-get update -y -q && \
     # apt-get upgrade -y -q && \
-    apt-get install -y ansible python3-pip apt-transport-https vim nano zip
+    apt-get install -y ansible python3-pip apt-transport-https vim nano zip sshpass
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata

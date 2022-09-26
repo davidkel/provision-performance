@@ -15,9 +15,10 @@ nvm install 14
 git clone https://github.com/hyperledger/caliper-benchmarks
 cd caliper-benchmarks
 npm install @hyperledger/caliper-cli@0.5.0
+
 # only required for HSM testing
 # sudo apt install -y build-essential
-# include this as a manager can also be a worker
+
 npx caliper bind --caliper-bind-sut fabric:2.4
 
 cd ..
