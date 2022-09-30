@@ -5,4 +5,6 @@ RUN apt-get update -y -q && \
     # apt-get upgrade -y -q && \
     apt-get install -y ansible python3-pip apt-transport-https vim nano zip sshpass
 
+# only works if you aren't using the ansible docker connector
+
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata

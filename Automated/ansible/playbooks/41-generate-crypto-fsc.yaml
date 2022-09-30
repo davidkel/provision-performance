@@ -8,12 +8,12 @@
     - util/orgvars
     - util/fscvars
 
-- name: Generate fsc crypto materials on the Client
+- name: Generate fsc crypto materials on the Main Client
   # `hosts` could simply be client0, but thing is, we need ansible facts of other hosts
   # specifically IP addresses of peers and orderers for generating crypto config.
   # And ansible is being weird and not letting us access the facts unless the play is run for
   # all hosts
-  hosts: client0:fsc
+  hosts: all
   remote_user: root
 
   tasks:
@@ -24,9 +24,18 @@
       when: 'inventory_hostname == "client0"'
 
     - name: Run cryptogen to extend fabric crypto material for fsc
-      shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config.yaml
+      shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config-extend.yaml
       args:
         chdir: /root
+      when: 'inventory_hostname == "client0"'
+
+    - name: delete cacerts file
+      shell: rm /root/crypto-config/cacerts.pem | true
+      when: 'inventory_hostname == "client0"'
+
+    - name: create the cacerts file
+      shell: cat /root/crypto-config/peerOrganizations/{{item}}/msp/tlscacerts/tlsca.{{item}}-cert.pem >> /root/crypto-config/cacerts.pem
+      loop: "{{orgvars_peerOrgsList}}"
       when: 'inventory_hostname == "client0"'
 
     - name: Fill templates of crypto-config-fsc.yaml.j2

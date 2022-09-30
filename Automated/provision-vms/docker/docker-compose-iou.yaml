@@ -1,0 +1,77 @@
+version: '2.3'
+services:
+  # peers
+  peer0: &base
+    container_name: peer0
+    image: ubuntu:20.04
+    # build: .
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./shared-files/crypto-config:/root/crypto-config
+      - ./shared-files/channel-artifacts:/root/channel-artifacts
+    cpu_count: 2 # 1/8, max 2 CPUs on 16core machine
+    command: tail -f /dev/null
+
+  peer1:
+    <<: *base
+    container_name: peer1
+
+  peer2:
+    <<: *base
+    container_name: peer2
+
+  # local-peer3:
+  #   <<: *base
+  #   container_name: local-peer3
+
+  # orderers
+  orderer0:
+    <<: *base
+    container_name: orderer0
+
+  lender0: &fscbase
+    container_name: lender0
+    image: ubuntu:20.04
+    volumes:
+      - ./shared-files/crypto-config:/root/crypto-config
+    command: tail -f /dev/null
+
+  borrower0:
+    <<: *fscbase
+    container_name: borrower0
+
+  approver0:
+    <<: *fscbase
+    container_name: approver0
+
+
+#  orderer1:
+#    <<: *base
+#    container_name: orderer1
+
+#  orderer2:
+#    <<: *base
+#    container_name: orderer2
+
+  # clients
+  client0:
+    <<: *base
+    container_name: client0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./shared-files/crypto-config:/root/crypto-config
+      - ./shared-files/channel-artifacts:/root/channel-artifacts
+
+  client1:
+    <<: *base
+    container_name: client1
+
+  controller:
+    <<: *base
+    container_name: controller
+    image: controller:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../../ansible:/ansible
+      - ./shared-files/crypto-config:/root/crypto-config
+      - ./shared-files/channel-artifacts:/root/channel-artifacts

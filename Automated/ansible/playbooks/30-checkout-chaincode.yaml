@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Checkout chaincode repo
+  hosts: peers
+  remote_user: root
+
+  tasks:
+    - name: Checkout to the {{ chainBranch }} branch
+      git:
+        dest: '{{ chainDest }}'
+        repo: '{{ chainRepo }}'
+        version: '{{ chainBranch }}'
+        update: yes
+
+

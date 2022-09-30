@@ -1,0 +1,49 @@
+all:
+    children:
+        peers: # group name
+            children:
+                # this is the MSP id and represents an org
+                peerOrg0: # group name
+                    hosts:
+                        peer0: { ansible_host: peer0}
+                peerOrg1:
+                    hosts:
+                        peer1: { ansible_host: peer1 }
+                peerOrg2:
+                    hosts:
+                        peer2: { ansible_host: peer2 }
+        orderers:
+            children:
+                ordererOrg0:
+                    hosts:
+                        orderer0: { ansible_host: orderer0 }
+#                        orderer1: { ansible_host: orderer1 }
+#                        orderer2: { ansible_host: orderer2 }
+        clients:
+            hosts:
+                 client0: { ansible_host: client0 }
+                 client1: { ansible_host: client1 }
+
+        fsc:
+            children:
+                lender:
+                    vars:
+                        owning_org: peerOrg0
+                    hosts:
+                        lender0: { ansible_host: lender0 }
+                borrower:
+                    vars:
+                        owning_org: peerOrg1
+                    hosts:
+                        borrower0: { ansible_host: borrower0 }
+                approver:
+                    vars:
+                        owning_org: peerOrg2
+                    hosts:
+                        approver0: { ansible_host: approver0, is_bootstrap: true }
+                client:
+                    vars:
+                        owning_org: peerOrg0
+                    hosts:
+                        client1: { ansible_host: client1 }
+

@@ -56,13 +56,34 @@
   hosts: all
   remote_user: root
   tasks:
-    - name: Install prometheus node exporter
+    # - name: Install prometheus node exporter
       # for VMs it looks like .bashrc is run automatically, for docker containers it doesn't
       # ~/go/bin would be the default if no goroot
       # shell: source /root/.bashrc && go install github.com/prometheus/node_exporter@latest
-      shell: go install github.com/prometheus/node_exporter@latest
-      args:
-        executable: /bin/bash
+    #  shell: go install github.com/prometheus/node_exporter@v1.3.1
+    #  args:
+    #    executable: /bin/bash
+    - name: Create the go/bin directory
+      ansible.builtin.file:
+        path: /root/go/bin/
+        state: directory
+        mode: '0755'
+        recurse: yes
+        
+    - name: Download prometheus node exporter
+      unarchive:
+        src: "https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz"
+        dest: /tmp
+        remote_src: true
+        creates: /tmp/node_exporter-1.3.1.linux-amd64/node_exporter
+
+    - name: Install prometheus node exporter
+      copy:
+        src: /tmp/node_exporter-1.3.1.linux-amd64/node_exporter
+        dest: /root/go/bin/
+        mode: preserve
+        force: no
+        remote_src: true
 
     - name: Download prometheus process exporter
       unarchive:

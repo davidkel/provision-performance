@@ -11,7 +11,18 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-benchmarks
+# checkout-and-build-fsc-nodes.yaml
+fscRepo: https://github.com/davidkel/sandbox
+fscBranch: master
+fscDest: /root/fsc
+fscPath: /iou
+
+# checkout-chaincode
+chainDest: '/root/caliper-benchmarks'
+chainRepo: https://github.com/hyperledger/caliper-benchmarks
+chainBranch: 'main'
+
+# run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
 benchRepo: https://github.com/hyperledger/caliper-benchmarks
 benchBranch: 'main'

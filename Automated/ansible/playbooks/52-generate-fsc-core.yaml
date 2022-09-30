@@ -1,0 +1,51 @@
+#!/usr/bin/env ansible-playbook
+
+# TODO: this might not be the right solution, how to clean a peer/orderer if you want a clean restart ?
+- name: Clean the fsc storage
+  hosts: fsc
+  remote_user: root
+  roles:
+    - util/fscvars
+
+  tasks:
+    - name: find bootstrap
+      set_fact: 
+         #https://stackoverflow.com/questions/67029581/ansible-how-to-select-hosts-based-on-certain-attributes-and-use-their-ip-address
+         __fscnode_bootstrap: "{{ hostvars | dict2items | selectattr('value.is_bootstrap', 'defined') | map(attribute='value.ansible_host')| list | first }}"
+
+    - name: Generate Core file
+      vars:
+          # eg lender|borrower|approver & fsc (first to convert 1 entry list to a single value)
+          # these templates run on the individual machines
+        __fscnode_role: '{{ group_names | difference("fsc") | first }}'
+        __fscnode_name: '{{ inventory_hostname }}'
+        __fscnode_host: '{{ hostvars[__fscnode_name].ansible_host }}'
+        __fscnode_identity_cert: /root/crypto-config/peerOrganizations/fsc/peers/{{__fscnode_name}}/msp/signcerts/{{__fscnode_name}}-cert.pem
+        __fscnode_identity_key: /root/crypto-config/peerOrganizations/fsc/peers/{{__fscnode_name}}/msp/keystore/priv_sk
+        __fscnode_tls_cert: /root/crypto-config/peerOrganizations/fsc/peers/{{__fscnode_name}}/tls/server.crt
+        __fscnode_tls_key: /root/crypto-config/peerOrganizations/fsc/peers/{{__fscnode_name}}/tls/server.key
+
+        # give something to a field I don't think needs to be set tls rootcertfile entry (which is a concatenation of all the tls ca certs in the network)
+        __fscnode_tls_ca: /root/crypto-config/peerOrganizations/fsc/peers/{{__fscnode_name}}/tls/ca.crt
+
+        # fabric driver configuration
+        __fscnode_owningorg: '{{ hostvars[__fscnode_name].owning_org }}'
+        __fscnode_bootstrap_address: '{{ hostvars[__fscnode_bootstrap].ansible_host }}'
+        __fscnode_fabric_msp: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/msp
+        __fscnode_fabric_tls: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls
+        __fscnode_fabric_tls_cert: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/server.crt
+        __fscnode_fabric_tls_key: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/server.key
+
+
+        # not sure why the driver needs this, it will need the cacerts for the peers it will talk to
+        __fscnode_fabric_tls_ca: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/ca.crt
+
+        # TODO: Should support multiple peers if in the same org
+        __first_peer_in_org: '{{ groups[__fscnode_owningorg] | first }}'
+
+
+      # TODO need to change the dest if we want to support these on the same node
+      template:
+        dest: "/root/core.yaml"
+        src: ./templates/fsc-core.yaml.j2
+

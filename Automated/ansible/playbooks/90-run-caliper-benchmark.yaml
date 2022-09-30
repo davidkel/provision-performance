@@ -33,6 +33,18 @@
         image: eclipse-mosquitto:latest
         state: absent
 
+- name: Checkout caliper benchmarks
+  hosts: clients
+  remote_user: root
+
+  tasks:
+    - name: Checkout to the {{ benchBranch }} branch
+      git:
+        dest: '{{ benchDest }}'
+        repo: '{{ benchRepo }}'
+        version: '{{ benchBranch }}'
+        update: yes
+
 # TODO:
 # 1. need to use caliper-benchmark templates and generate a benchmark, vars to be provided
 # 2. need to remote launch workers
