@@ -11,22 +11,10 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-and-build-fsc-nodes.yaml: iou fsc nodes
-fscRepo: https://github.com/davidkel/sandbox
-fscBranch: master
-fscDest: /root/fsc
-fscPath: /iou
-
-# checkout-chaincode: iou chaincode
-chainDest: '/root/fsc'
-chainRepo: https://github.com/davidkel/sandbox
-chainBranch: 'master'
-chainPath: /iou/cc
-
-# run-caliper-benchmarks
+# checkout-benchmarks
 benchDest: '/root/caliper-benchmarks'
-benchRepo: https://github.com/hyperledger/caliper-benchmarks
-benchBranch: 'main'
+benchRepo: https://github.com/davidkel/caliper-benchmarks
+benchBranch: 'fixreadwrite'
 
 # generate-channel.yaml
 channelIDs: ch1 # comma separated string of channel names (e.g. ch1,ch2,ch3)
@@ -39,14 +27,13 @@ preferred_max_bytes: 512 KB
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
 # TODO: can only deploy 1 chaincode
-ccName: iou
-ccVersion: 1.0.1
+ccName: fixed-asset
+ccVersion: 1.0.0
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
-ccPath: '{{ chainDest }}/{{ chainPath }}'
-endorsementPolicy: 'AND ("peerOrg2MSP.member")'  # approver org
-#TODO: may not support iou so need to be optional
+ccPath: '{{ benchDest }}/src/fabric/api/fixed-asset-base/go'
+endorsementPolicy: 'OR ("peerOrg0MSP.member","peerOrg1MSP.member")'
 ccInitArgs: '{"Args": ["init"]}'
-ccQueryArgs: '{"Args": ["invoke"]}'
+ccQueryArgs: '{"Args": ["emptycontract"]}'
 
 # restart-nodes
 enable_fabric_profile: false
@@ -64,7 +51,7 @@ ordererTotalCPUs: 2
 # the default is to get the latest fabric and benchmark code and restart fabric
 
 plays:
-  # - docker
+  # - vm
   # - prereqs
   # - deployprom
   - checkoutfabric
@@ -81,7 +68,6 @@ plays:
 # WARNING: Don't mess with any of the following.
 ###############################################################
 ansible_python_interpreter: python3
-ansible_connection: docker
 
 channelIDsList: "{{ channelIDs.split(',') }}"
 orderers: '{{ groups["orderers"] }}'

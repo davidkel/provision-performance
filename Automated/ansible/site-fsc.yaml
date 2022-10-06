@@ -1,15 +1,12 @@
 #!/usr/bin/env ansible-playbook
-- import_playbook: playbooks/5-docker-prereqs.yaml
-  when: 'plays=="all" or ("docker" in plays)'
-
 - import_playbook: playbooks/10-common-prereqs.yaml
   when: 'plays=="all" or ("prereqs" in plays)'
 
-- import_playbook: playbooks/15-deploy-prometheus.yaml
-  when: 'plays=="all" or ("deployprom" in plays)'
-
 - import_playbook: playbooks/20-checkout-and-build-fabric.yaml
   when: 'plays=="all" or ("checkoutfabric" in plays)'
+
+- import_playbook: playbooks/25-checkout-and-build-fsc-nodes.yaml
+  when: 'plays=="all" or ("checkoutfsc" in plays)'
 
 - import_playbook: playbooks/30-checkout-chaincode.yaml
   when: 'plays=="all" or ("checkoutchain" in plays)'
@@ -17,11 +14,11 @@
 - import_playbook: playbooks/40-generate-crypto-fabric.yaml
   when: 'plays=="all" or ("gencrypto" in plays)'
 
+- import_playbook: playbooks/41-generate-crypto-fsc.yaml
+  when: 'plays=="all" or ("genfsccrypto" in plays)'
+
 - import_playbook: playbooks/42-copy-crypto.yaml
   when: 'plays=="all" or ("copycrypto" in plays)'
-
-- import_playbook: playbooks/45-deploy-caliper.yaml
-  when: 'plays=="all" or ("caliper" in plays)'
 
 - import_playbook: playbooks/50-generate-channel.yaml
   when: 'plays=="all" or ("genchan" in plays)'
@@ -38,3 +35,5 @@
 - import_playbook: playbooks/70-lscc-deploy-chaincode.yaml
   when: 'plays=="all" or ("deploycc" in plays)'
 
+- import_playbook: playbooks/52-generate-fsc-core.yaml
+  when: 'plays=="all" or ("genfsccore" in plays)'

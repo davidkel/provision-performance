@@ -39,8 +39,9 @@ all:
                 approver:
                     vars:
                         owning_org: peerOrg2
+                        is_bootstrap: true
                     hosts:
-                        approver0: { ansible_host: approver0, is_bootstrap: true }
+                        approver0: { ansible_host: approver0 }
                 client:
                     vars:
                         owning_org: peerOrg0

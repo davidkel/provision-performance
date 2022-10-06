@@ -1,4 +1,4 @@
 go_platform: linux-amd64
 go_parent_dir: /usr/local
-go_ver: '1.18.3'
+go_ver: '1.18.6'
 home_dir: /root

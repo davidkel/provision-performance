@@ -7,7 +7,7 @@ PeerOrgs:
     Specs:
     {% for fscnodeType in fscvars_nodesByType %}
       {% for fscnode in fscvars_nodesByType[fscnodeType] %}
-        {% if hostvars[fscnode].owning_org == peerOrg %}
+        {% if hostvars[fscnode].owning_org is defined and hostvars[fscnode].owning_org == peerOrg %}
 
       - Hostname: {{ fscnode }}   # implicitly {{fscnode}}.{{peerOrg}}
         CommonName: {{ fscnode }} # overrides the above

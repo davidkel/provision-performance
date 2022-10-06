@@ -18,7 +18,7 @@
   when: 'plays=="all" or ("gencrypto" in plays)'
 
 - import_playbook: playbooks/42-copy-crypto.yaml
-  when: 'plays=="all" or ("gencrypto" in plays)'
+  when: 'plays=="all" or ("copycrypto" in plays)'
 
 - import_playbook: playbooks/45-deploy-caliper.yaml
   when: 'plays=="all" or ("caliper" in plays)'

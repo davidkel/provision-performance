@@ -11,7 +11,8 @@
     - name: find bootstrap
       set_fact: 
          #https://stackoverflow.com/questions/67029581/ansible-how-to-select-hosts-based-on-certain-attributes-and-use-their-ip-address
-         __fscnode_bootstrap: "{{ hostvars | dict2items | selectattr('value.is_bootstrap', 'defined') | map(attribute='value.ansible_host')| list | first }}"
+         __fscnode_bootstrap_role: "{{ hostvars | dict2items | selectattr('value.is_bootstrap', 'defined') | map(attribute='value.group_names') | list | first | difference('fsc') | first }}"
+         #__fscnode_bootstrap: "{{ hostvars | dict2items | selectattr('value.is_bootstrap', 'defined') | map(attribute='value.group_names') | list | first | difference('fsc') | first }}"
 
     - name: Generate Core file
       vars:
@@ -30,7 +31,8 @@
 
         # fabric driver configuration
         __fscnode_owningorg: '{{ hostvars[__fscnode_name].owning_org }}'
-        __fscnode_bootstrap_address: '{{ hostvars[__fscnode_bootstrap].ansible_host }}'
+        __fscnode_bootstrap_name: '{{ groups[__fscnode_bootstrap_role] | first  }}'
+        __fscnode_bootstrap_address: '{{hostvars[__fscnode_bootstrap_name].ansible_host}}'
         __fscnode_fabric_msp: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/msp
         __fscnode_fabric_tls: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls
         __fscnode_fabric_tls_cert: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/server.crt

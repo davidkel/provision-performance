@@ -3,7 +3,8 @@ services:
   # peers
   peer0: &base
     container_name: peer0
-    image: ubuntu:20.04
+    #image: ubuntu:20.04
+    image: prepmac:latest
     # build: .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -31,7 +32,8 @@ services:
 
   lender0: &fscbase
     container_name: lender0
-    image: ubuntu:20.04
+    # image: ubuntu:20.04
+    image: prepmac:latest
     volumes:
       - ./shared-files/crypto-config:/root/crypto-config
     command: tail -f /dev/null

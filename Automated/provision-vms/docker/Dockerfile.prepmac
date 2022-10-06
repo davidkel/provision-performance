@@ -1,0 +1,36 @@
+FROM ubuntu:20.04
+
+# Update and upgrade repo
+RUN apt-get update -y -q && \
+    # apt-get upgrade -y -q && \
+    apt-get install -y python python3-pip vim nano zip gpg ca-certificates git build-essential iftop nmap netcat nmon htop tmux iotop jq
+
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+
+# Install docker
+RUN apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+RUN apt-get -y update
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# install Go
+RUN mkdir /usr/local/go1.18.6.linux-amd64
+RUN curl -s https://dl.google.com/go/go1.18.6.linux-amd64.tar.gz | tar -v -C /usr/local/go1.18.6.linux-amd64 -xz
+RUN ln -s /usr/local/go1.18.6.linux-amd64/go/bin/go /usr/bin/go
+
+# install Node
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+RUN add-apt-repository "deb [arch=amd64] https://deb.nodesource.com/node_14.x $(lsb_release -cs) main"
+RUN apt-get -y update
+RUN apt install -y nodejs
+
+# Missing: Node Exporter, Process Exporter
