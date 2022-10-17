@@ -17,7 +17,7 @@
 - import_playbook: playbooks/40-generate-crypto-fabric.yaml
   when: 'plays=="all" or ("gencrypto" in plays)'
 
-- import_playbook: playbooks/42-copy-crypto.yaml
+- import_playbook: playbooks/43-copy-crypto.yaml
   when: 'plays=="all" or ("copycrypto" in plays)'
 
 - import_playbook: playbooks/45-deploy-caliper.yaml

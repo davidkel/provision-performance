@@ -38,7 +38,7 @@
         __fscnode_fabric_tls_cert: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/server.crt
         __fscnode_fabric_tls_key: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/server.key
 
-
+        __idemix_roles: "{{ hostvars | dict2items | selectattr('value.idemix', 'defined') | map(attribute='value.group_names') | list | flatten | difference('fsc')}}"
         # not sure why the driver needs this, it will need the cacerts for the peers it will talk to
         __fscnode_fabric_tls_ca: /root/crypto-config/peerOrganizations/{{__fscnode_owningorg}}/peers/{{__fscnode_name}}/tls/ca.crt
 

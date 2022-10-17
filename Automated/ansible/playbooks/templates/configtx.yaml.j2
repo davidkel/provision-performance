@@ -65,6 +65,28 @@ Organizations:
                 Rule: "MAJORITY Endorsement"
 {% endfor %}
 
+# idemix node count: {{ idemix_node_count }}
+{% if idemix_node_count != "0" %}
+    - &IdemixOrg
+        Name: IdemixOrg
+        ID: IdemixOrgMSP
+        # TODO: idemix orgs need to be more flexible than just hardcoded to idemix
+        MSPDIR: crypto-config/peerOrganizations/idemix/org
+        MSPType: idemix
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: OR('IdemixOrgMSP.member')
+            Writers:
+                Type: Signature
+                Rule: OR('IdemixOrgMSP.member')
+            Endorsement:
+                Type: Signature
+                Rule: OR('IdemixOrgMSP.member')
+            Admins:
+                Type: Signature
+                Rule: OR('IdemixOrgMSP.admin')
+{% endif %}
 
 ################################################################################
 # Orderer
@@ -251,5 +273,9 @@ Profiles:
             {% for peerOrg in orgvars_peerOrgs %}
                 - *{{ peerOrg }}
             {% endfor %}
+            {% if idemix_node_count != "0" %}
+
+#                - *IdemixOrg
+            {% endif %}
             Capabilities: *ApplicationCapabilities
 

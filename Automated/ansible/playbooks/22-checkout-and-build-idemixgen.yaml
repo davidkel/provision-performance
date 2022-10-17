@@ -1,0 +1,19 @@
+#!/usr/bin/env ansible-playbook
+# TODO: Improve performance only build the needed binaries on each of the systems, not all systems
+
+- name: Checkout idemix to the given branch and build
+  hosts: client0
+  remote_user: root
+
+  tasks:
+    - name: Checkout to the {{idemixBranch}} branch
+      git:
+        dest: '{{ idemixDest }}'
+        repo: '{{idemixRepo}}'
+        version: '{{idemixBranch}}'
+        update: yes
+
+    - name: build idemixgen
+      make:
+        chdir: '{{ idemixDest }}'
+        target: 'idemixgen'

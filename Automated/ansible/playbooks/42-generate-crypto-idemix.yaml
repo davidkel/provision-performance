@@ -1,0 +1,37 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: client0
+  remote_user: root
+
+  roles:
+    - util/orgvars
+
+- name: Generate crypto materials on the Client
+  # `hosts` could simply be client0, but thing is, we need ansible facts of other hosts
+  # specifically IP addresses of peers and orderers for generating crypto config.
+  # And ansible is being weird and not letting us access the facts unless the play is run for
+  # all hosts
+  hosts: client0
+  remote_user: root
+
+  roles:
+    - role: util/ensure_empty_folder
+      path: /root/crypto-config/peerOrganizations/idemix
+
+  tasks:
+    - name: generate idemix ca and org map
+      shell: ./idemixgen ca-keygen --output /root/crypto-config/peerOrganizations/idemix/org
+      args:
+        chdir:  '/root/go/bin'
+
+    - name: generate fabric client idemix identities for fsc nodes
+      vars:
+        idemix_nodes:    "{{ hostvars | dict2items | selectattr('value.idemix', 'defined') | map(attribute='value.group_names') | list | flatten | difference('fsc')}}"
+
+      # TODO orgunit may need to be something better, do we need -r ?
+      shell: ./idemixgen signerconfig --ca-input /root/crypto-config/peerOrganizations/idemix/org --output /root/crypto-config/peerOrganizations/idemix/{{item}} -u {{item}} -e {{item}}
+      args:
+        chdir: /root/go/bin
+      loop: '{{idemix_nodes}}'
+

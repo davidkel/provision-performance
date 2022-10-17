@@ -5,11 +5,14 @@
 - import_playbook: playbooks/20-checkout-and-build-fabric.yaml
   when: 'plays=="all" or ("checkoutfabric" in plays)'
 
+- import_playbook: playbooks/22-checkout-and-build-idemixgen.yaml
+  when: 'plays=="all" or ("checkoutfabric" in plays)'
+
 - import_playbook: playbooks/25-checkout-and-build-fsc-nodes.yaml
   when: 'plays=="all" or ("checkoutfsc" in plays)'
 
 - import_playbook: playbooks/30-checkout-chaincode.yaml
-  when: 'plays=="all" or ("checkoutchain" in plays)'
+  when: 'plays=="all" or ("checkoutfsc" in plays)'
 
 - import_playbook: playbooks/40-generate-crypto-fabric.yaml
   when: 'plays=="all" or ("gencrypto" in plays)'
@@ -17,23 +20,11 @@
 - import_playbook: playbooks/41-generate-crypto-fsc.yaml
   when: 'plays=="all" or ("genfsccrypto" in plays)'
 
-- import_playbook: playbooks/43-copy-crypto.yaml
-  when: 'plays=="all" or ("copycrypto" in plays)'
+- import_playbook: playbooks/42-generate-crypto-idemix.yaml
+  when: 'plays=="all" or ("genfsccrypto" in plays)'
 
 - import_playbook: playbooks/50-generate-channel.yaml
   when: 'plays=="all" or ("genchan" in plays)'
-
-- import_playbook: playbooks/55-restart-fabric-nodes.yaml
-  when: 'plays=="all" or ("restartnodes" in plays)'
-
-- import_playbook: playbooks/60-create-channels.yaml
-  when: 'plays=="all" or ("createchan" in plays)'
-
-- import_playbook: playbooks/65-create-anchors.yaml
-  when: 'plays=="all" or ("createanch" in plays)'
-
-- import_playbook: playbooks/70-lscc-deploy-chaincode.yaml
-  when: 'plays=="all" or ("deploycc" in plays)'
 
 - import_playbook: playbooks/52-generate-fsc-core.yaml
   when: 'plays=="all" or ("genfsccore" in plays)'

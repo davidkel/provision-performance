@@ -21,13 +21,13 @@
         version: '{{dltBranch}}'
         update: yes
 
-    - name: Remove the peer or orderer and cryptogen and configtxgen binaries to force rebuild
+    - name: Remove the peer, orderer, cryptogen, configtxgen, osnadmin, configtxlater binaries to force rebuild
       file:
         path: '{{ dltDest }}/build/bin/{{item}}'
         state: absent
       loop: ['{{target}}', configtxgen, cryptogen, osnadmin, configtxlator]
 
-    - name: Build configtxgen and cryptogen
+    - name: Build configtxgen, cryptogen, osnadmin, configtxlater
       make:
         chdir: '{{ dltDest }}'
         target: '{{ item }}'
@@ -35,7 +35,7 @@
           NUM_THREADS: '{{ ansible_processor_vcpus }}'
       loop: [configtxgen, cryptogen, osnadmin, configtxlator]
 
-    - name: Run make to build peer or orderer
+    - name: build peer or orderer
       make:
         chdir: '{{ dltDest }}'
         target: '{{ target }}'

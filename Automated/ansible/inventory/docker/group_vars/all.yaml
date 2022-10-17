@@ -11,17 +11,22 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
+# checkout-and-build-idemixgen.yaml
+idemixRepo: https://github.com/IBM/idemix
+idemixBranch: main
+idemixDest: /root/idemix
+
 # checkout-and-build-fsc-nodes.yaml: iou fsc nodes
 fscRepo: https://github.com/davidkel/sandbox
 fscBranch: master
 fscDest: /root/fsc
-fscPath: /iou
+fscPath: /atsa
 
 # checkout-chaincode: iou chaincode
 chainDest: '/root/fsc'
 chainRepo: https://github.com/davidkel/sandbox
 chainBranch: 'master'
-chainPath: /iou/cc
+chainPath: /atsa/cc
 
 # run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
@@ -39,7 +44,7 @@ preferred_max_bytes: 512 KB
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
 # TODO: can only deploy 1 chaincode
-ccName: iou
+ccName: asset_transfer
 ccVersion: 1.0.1
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
 ccPath: '{{ chainDest }}/{{ chainPath }}'

@@ -30,7 +30,6 @@ services:
     <<: *base
     container_name: orderer0
 
-
 #  orderer1:
 #    <<: *base
 #    container_name: orderer1
@@ -39,21 +38,25 @@ services:
 #    <<: *base
 #    container_name: orderer2
 
-  lender0: &fscbase
-    container_name: lender0
+  alice0: &fscbase
+    container_name: alice0
     # image: ubuntu:20.04
     image: prepmac:latest
     volumes:
       - ./shared-files/crypto-config:/root/crypto-config
     command: tail -f /dev/null
 
-  borrower0:
+  bob0:
     <<: *fscbase
-    container_name: borrower0
+    container_name: bob0
 
   approver0:
     <<: *fscbase
     container_name: approver0
+
+  issuer0:
+    <<: *fscbase
+    container_name: issuer0
 
   # clients
   client0:

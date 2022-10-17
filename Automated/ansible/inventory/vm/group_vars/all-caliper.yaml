@@ -11,11 +11,6 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-and-build-idemixgen.yaml
-idemixRepo: https://github.com/IBM/idemix
-idemixBranch: main
-idemixDest: /root/idemix
-
 # checkout-and-build-fsc-nodes.yaml
 fscRepo: https://github.com/davidkel/sandbox
 fscBranch: master

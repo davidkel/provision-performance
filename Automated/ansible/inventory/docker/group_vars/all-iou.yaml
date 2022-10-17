@@ -11,21 +11,17 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-and-build-idemixgen.yaml
-idemixRepo: https://github.com/IBM/idemix
-idemixBranch: main
-idemixDest: /root/idemix
-
-# checkout-and-build-fsc-nodes.yaml
+# checkout-and-build-fsc-nodes.yaml: iou fsc nodes
 fscRepo: https://github.com/davidkel/sandbox
 fscBranch: master
 fscDest: /root/fsc
 fscPath: /iou
 
-# checkout-chaincode
-chainDest: '/root/caliper-benchmarks'
-chainRepo: https://github.com/hyperledger/caliper-benchmarks
-chainBranch: 'main'
+# checkout-chaincode: iou chaincode
+chainDest: '/root/fsc'
+chainRepo: https://github.com/davidkel/sandbox
+chainBranch: 'master'
+chainPath: /iou/cc
 
 # run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
@@ -43,13 +39,14 @@ preferred_max_bytes: 512 KB
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
 # TODO: can only deploy 1 chaincode
-ccName: fixed-asset
-ccVersion: 1.0.0
+ccName: iou
+ccVersion: 1.0.1
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
-ccPath: '{{ benchDest }}/src/fabric/api/fixed-asset-base/go'
-endorsementPolicy: 'OR ("peerOrg0MSP.member","peerOrg1MSP.member")'
+ccPath: '{{ chainDest }}/{{ chainPath }}'
+endorsementPolicy: 'AND ("peerOrg2MSP.member")'  # approver org
+#TODO: may not support iou so need to be optional
 ccInitArgs: '{"Args": ["init"]}'
-ccQueryArgs: '{"Args": ["emptycontract"]}'
+ccQueryArgs: '{"Args": ["invoke"]}'
 
 # restart-nodes
 enable_fabric_profile: false
@@ -67,7 +64,7 @@ ordererTotalCPUs: 2
 # the default is to get the latest fabric and benchmark code and restart fabric
 
 plays:
-  # - vm
+  # - docker
   # - prereqs
   # - deployprom
   - checkoutfabric
@@ -84,6 +81,7 @@ plays:
 # WARNING: Don't mess with any of the following.
 ###############################################################
 ansible_python_interpreter: python3
+ansible_connection: docker
 
 channelIDsList: "{{ channelIDs.split(',') }}"
 orderers: '{{ groups["orderers"] }}'

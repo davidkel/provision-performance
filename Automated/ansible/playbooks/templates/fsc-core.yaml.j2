@@ -1,23 +1,12 @@
 ---
 # ------------------- Logging section ---------------------------
 logging:
- # Spec
  spec: debug
- # Format
- format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'
 
 # ------------------- FSC Configuration -------------------------
 fsc:
-  # The FSC id provides a name for this node instance and is used when
-  # naming docker resources, get's added as a resolver to address and also used as an identifier for tracing
   id: fsc.{{ inventory_hostname }}
 
-  # The networkId allows for logical separation of networks and is used when
-  # naming docker resources. Looks like it may only be used by NWO
-  # THIS IS NOT USED
-  # networkId: b37w5d4fqjb47muizw4dmc7r4m
-
-  # Identity of this node, used to connect to other nodes assume this is not specific to the GRPC Server
   identity:
     # X.509 certificate used as identity of this node
     cert:
@@ -26,93 +15,32 @@ fsc:
     key:
       file: {{ __fscnode_identity_key}}
 
-  # Client X.509 certificates
-  # client:
-  #  certs:
-  #  - /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/users/Admin@fsc.example.com/msp/signcerts/Admin@fsc.example.com-cert.pem
-
-  # Admin X.509 certificates
-  # admin:
-  #  certs:
-  #  - /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/users/Admin@fsc.example.com/msp/signcerts/Admin@fsc.example.com-cert.pem
 
   # --------- GRPC Server Configuration  -----------------
-  # This represents the endpoint to other FSC nodes in the same organization. 
-  # This is the GRPC Server Address
-  address: {{ inventory_hostname }}:20000
+  grpc:
+    address: {{ inventory_hostname }}:20000 # could be 0.0.0.0
+    tls:
+      enabled:  true
+      clientAuthRequired: false
+      cert:
+        file: {{ __fscnode_tls_cert }} 
+      key:
+        file: {{ __fscnode_tls_key }} 
 
-  # Whether the FSC node should programmatically determine its address
-  # This case is useful for docker containers.
-  # When set to true, will override FSC address.
-  # THIS IS NOT USED
-  # addressAutoDetect: true
+      # If mutual TLS is enabled, clientRootCAs.files contains a list of additional root certificates
+      # used for verifying certificates of client connections.
+      # clientRootCAs:
+      #  files:
+      #  - /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/peers/approver.fsc.example.com/tls/ca.crt
 
-  # GRPC Server listener address
-  # THIS IS NOT USED
-  # listenAddress: {{ inventory_hostname }}:20000
-
-  # TLS Settings for GRPC Server
-  # (We use here the same set of properties as Hyperledger Fabric)
-  tls:
-    # Require server-side TLS
-    enabled:  true
-    # Require client certificates / mutual TLS for inbound connections.
-    # Note that clients that are not configured to use a certificate will
-    # fail to connect to the node.
-    clientAuthRequired: false
-    # X.509 certificate used for TLS server
-    cert:
-      file: {{ __fscnode_tls_cert }} 
-    # Private key used for TLS server
-    key:
-      file: {{ __fscnode_tls_key }} 
-
-    # X.509 certificate used for TLS when making client connections.
-    # If not set, fsc.tls.cert.file will be used instead
-    # THESE ARE NOT USED
-    # clientCert:
-    #   file: /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/peers/approver.fsc.example.com/tls/server.crt
-    # Private key used for TLS when making client connections.
-    # If not set, fsc.tls.key.file will be used instead
-    # clientKey:
-    #   file: /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/peers/approver.fsc.example.com/tls/server.key
-
-    # rootcert.file represents the trusted root certificate chain used for verifying certificates
-    # of other nodes during outbound connections. 
-    # But this is a grpc server for clients only so I don't think this is used
-    # Also rootCertFile uses a concatenation of all the ca certs of the fsc nodes so the entry is not correct at the moment
-    # This only makes sense if this was for a client (but maybe the code handles both and the client uses this which is just plain horrible)
-    # And which one is used ?????
-    # THESE ARE NOT USED
-    # rootcert:
-    #   file: {{ __fscnode_tls_ca }}
-    # rootCertFile: {{ __fscnode_tls_ca }}
-
-    # If mutual TLS is enabled, clientRootCAs.files contains a list of additional root certificates
-    # used for verifying certificates of client connections.
-    # clientRootCAs:
-    #  files:
-    #  - /home/dave/github-cloned/fabric-smart-client/samples/fabric/iou/testdata/fsc/crypto/peerOrganizations/fsc.example.com/peers/approver.fsc.example.com/tls/ca.crt
-
-  # Keepalive settings for GRPC node server and clients
-  keepalive:
-    # MinInterval is the minimum permitted time between client pings.
-    # If clients send pings more frequently, the peer server will
-    # disconnect them
-    minInterval: 60s
-    # Interval is the duration after which if the server does not see
-    # any activity from the client it pings the client to see if it's alive
-    interval: 300s
-    # Timeout is the duration the server waits for a response
-    # from the client after sending a ping before closing the connection
-    timeout: 600s
-
+    keepalive:
+      minInterval: 60s
+      interval: 300s
+      timeout: 600s
 
   # --------- P2P configuration ----------------
   p2p:
-    # Listening address
     listenAddress: /dns4/{{ __fscnode_host }}/tcp/20001
-    # If empty, this is a P2P boostrap node. Otherwise, it contains the name of the fsc node that is a bootstrap node
     {% if __fscnode_role == __fscnode_bootstrap_role %}
 
     bootstrapNode:
@@ -120,59 +48,43 @@ fsc:
 
     bootstrapNode: {{ __fscnode_bootstrap_role }}
     {% endif %}
-  # The Key-Value Store is used to store various information related to the FSC node
+
   kvs:
     persistence:
-      # Persistence type can be \'badger\' (on disk) or \'memory\'
       type: badger
       opts:
         path: /root/{{ inventory_hostname }}/kvs
 
-
   # --------- HTML Server configuration for REST calls -------------
-  # Note that the web client also uses the same config block where address is the address endpoint and tls is the client tls for
-  # mutual TLS
   web:
     enabled: true
     # HTTPS server listener address
-    address: 0.0.0.0:20002
+    address: {{ inventory_hostname }}:20002  # could be 0.0.0.0
     tls:
       enabled:  true
       cert:
         file: {{ __fscnode_tls_cert }} 
       key:
         file: {{ __fscnode_tls_key }} 
-
-    # For the web interface mutual tls is mandatory, luckily all fsc nodes including the client have the same ca so we only need to provide
-    # the fsc org root ca
-    
+   
       clientRootCAs:
         files:
-        - {{ __fscnode_tls_ca }} 
-
-    # TODO: Same again with this, what is it used for ? actually looks like it isn't used at all THIS IS NOT USED
-    # rootCertFile: {{ __fscnode_tls_ca }} 
+        - {{ __fscnode_tls_ca }} # check this as it should be perhaps the fsc org root ca really rather than the node as the client will be part of the fsc org
 
   # ---------------- Tracing and Metrics --------------------------
   tracing:
     provider: none
-    udp:
-      address: 127.0.0.1:8125
+    # udp:
+    #  address: 127.0.0.1:8125
 
   metrics:
-    # metrics provider is one of statsd, prometheus, or disabled
     provider: prometheus
     # statsd configuration
-    statsd:
-      # network type: tcp or udp
-      network: udp
-      # statsd server address
-      address: 127.0.0.1:8125
-      # the interval at which locally cached counters and gauges are pushed
-      # to statsd; timings are pushed immediately
-      writeInterval: 10s
-      # prefix is prepended to all emitted statsd metrics
-      prefix:
+    # statsd:
+    #  network: udp
+    #  address: 127.0.0.1:8125
+    #  writeInterval: 10s
+    #  prefix:
 
   # ----------------- FSC Resolvers -------------------------------
   # The endpoint section tells how to reach other FSC node in the network.
@@ -186,8 +98,6 @@ fsc:
     - name: {{ fscnode_role }}
       domain: 
       identity:
-        # THIS IS NOT USED
-        # id: {{ fscnode }}
         path: /root/crypto-config/peerOrganizations/fsc/peers/{{fscnode}}/msp/signcerts/{{fscnode}}-cert.pem
       addresses:
       {% if fscnode_role == __fscnode_bootstrap_role %} 
@@ -200,9 +110,8 @@ fsc:
 # ----------------------- Fabric Driver Configuration ---------------------------
 fabric:
   enabled: true
-  default:
+  main:
     default: true
-    # TODO: What is this value used for ?
     mspCacheSize: 500
     defaultMSP: {{ __fscnode_name }}
     msps:
@@ -218,45 +127,32 @@ fabric:
             SW:
               Hash: SHA2
               Security: 256
+{% if __fscnode_role in __idemix_roles %}
 
-    ## TODO: This needs rationalisation
+      - id: idemix
+        mspType: idemix
+        mspID: IdemixOrgMSP
+        path: /root/crypto-config/peerOrganizations/idemix/{{ __fscnode_role }}
+        opts:
+          BCCSP:
+            Default: SW
+            SW:
+              Hash: SHA2
+              Security: 256        
+{% endif %}
+
     tls:
       enabled:  true
       clientAuthRequired: false
-      # TODO: Why do we need a cert and key if we are purely a client ? Should not be required now
-      # cert:
-      #   file: {{ __fscnode_fabric_tls_cert }}
-      # key:
-      #  file: {{ __fscnode_fabric_tls_key }}
-
       # Only required if using mutual tls
       # clientCert:
       #   file: {{ __fscnode_fabric_tls_cert }}
       # clientKey:
       #   file: {{ __fscnode_fabric_tls_key }}
 
-      # THIS IS NOT USED
-      #rootcert:
-      #  file: {{ __fscnode_fabric_tls_ca }}
-
-      # THIS IS NOT USED
-      #clientRootCAs:
-      #  files:
-      #  # TODO: Why is this one entry set to this ? what is it used for ? 
-      #  - {{ __fscnode_fabric_tls_ca }}
-      
-      # THIS IS NOT USED
-      # rootCertFile: /root/crypto-config/cacerts.pem
-
-      # TODO: This should not be under tls and server section not required
-      keepalive:
-       client:
-         interval: 60s
-         timeout: 600s
-       server:
-         interval: 60s
-         timeout: 600s
-         minInterval: 60s
+    keepalive:
+      interval: 60s
+      timeout: 600s
 
     ordering:
       numRetries: 3
@@ -268,26 +164,23 @@ fabric:
     peers:
       - address: '{{ __first_peer_in_org }}:7051'
         connectionTimeout: 10s
-        tlsEnabled: true
         tlsRootCertFile: {{ __fscnode_fabric_tls_ca }} # can use this as all nodes in the same org have the same tls ca file
         serverNameOverride:
 
-# TODO: Assumes single channel in channelIDs, need to support multiple channels
+    # TODO: Assumes single channel in channelIDs, need to support multiple channels
     channels:
       - name: {{channelIDs}}
         default: true
         chaincodes:
           - name: {{ ccName }}
-            private: false # TODO: What does this mean ?
+            private: false
             
     vault:
       persistence:
-        # Persistence type can be \'badger\' (on disk) or \'memory\'
         type: badger
         opts:
           path: /root/{{ inventory_hostname }}/vault
       txidstore:
-          # Sets the maximum number of cached items
           cache: 200      
 
     endpoint:
@@ -295,19 +188,9 @@ fabric:
 {% for fscnode in (groups['fsc'] | default([])) %}
 {% set fscnode_role = (hostvars | dict2items | selectattr('value.ansible_host', 'eq', fscnode) | map(attribute='value.group_names') | list | first | difference('fsc') | first) %}
 
-      # a name as you can get the identity by name
-      # domain allows to have the same name but differentiated ?
       - name: {{fscnode_role}}
         domain:
-        # TODO: Have we got replicated info here declaring msp information ?
         identity:
-          # Don't think that id has any use it's just that the MSP structure that is 
-          # used to parse this has it but it represents the name of the particular fabric type node (peer or client = fsc node)
-          # addresses are only on the peers.
-          # THIS IS NOT USED
-          # id: {{fscnode_role}}
-          # THIS HAS BEEN REMOVED
-          # mspType: bccsp
           mspID: {{hostvars[fscnode].owning_org}}MSP
           # The nodes msp (but private key isn't used)
           path: /root/crypto-config/peerOrganizations/{{hostvars[fscnode].owning_org}}/peers/{{fscnode}}/msp

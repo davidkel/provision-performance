@@ -31,6 +31,7 @@
       vars:
         t_block_size: '{{ block_size }}'
         t_preferred_max_bytes: '{{ preferred_max_bytes }}'
+        idemix_node_count: "{{ hostvars | dict2items | selectattr('value.idemix', 'defined') | map(attribute='value.group_names') | list | flatten | difference('fsc') | length }}"
 
     - name: Generate channel config tx on client
       shell: >-

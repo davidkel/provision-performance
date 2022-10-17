@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Create ordererOrgs and peerOrgs maps to be used for following plays
-  hosts: clients
+  hosts: client0
   remote_user: root
 
   roles:
@@ -17,28 +17,28 @@
   remote_user: root
 
   tasks:
-    - name: Fill templates of crypto-config-extend.yaml.j2
+    - name: generate crypto-config-extend.yaml to extend fabric crypto to include fsc nodes in their owning orgs (fabric-driver)
       template:
           dest: /root/crypto-config-extend.yaml
           src: ./templates/crypto-config-extend.yaml.j2
       when: 'inventory_hostname == "client0"'
 
-    - name: Run cryptogen to extend fabric crypto material for fsc
+    - name: Run cryptogen to extend fabric crypto material
       shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config-extend.yaml
       args:
         chdir: /root
       when: 'inventory_hostname == "client0"'
 
-    - name: delete cacerts file
+    - name: delete concatenated cacerts file if it exists
       shell: rm /root/crypto-config/cacerts.pem | true
       when: 'inventory_hostname == "client0"'
 
-    - name: create the cacerts file
+    - name: create the concatenated cacerts file for all fabric organisations
       shell: cat /root/crypto-config/peerOrganizations/{{item}}/msp/tlscacerts/tlsca.{{item}}-cert.pem >> /root/crypto-config/cacerts.pem
       loop: "{{orgvars_peerOrgsList}}"
       when: 'inventory_hostname == "client0"'
 
-    - name: Fill templates of crypto-config-fsc.yaml.j2
+    - name: generate crypto-config-fsc.yaml to create a single organisation for all the fsc nodes (holds their unique identities under a single org)
       template:
           dest: /root/crypto-config-fsc.yaml
           src: ./templates/crypto-config-fsc.yaml.j2
