@@ -17,14 +17,14 @@
   remote_user: root
 
   tasks:
-    - name: generate crypto-config-extend.yaml to extend fabric crypto to include fsc nodes in their owning orgs (fabric-driver)
+    - name: generate crypto-config-fsc-extend.yaml to extend fabric crypto to include fsc nodes in their owning orgs (fabric-driver)
       template:
-          dest: /root/crypto-config-extend.yaml
-          src: ./templates/crypto-config-extend.yaml.j2
+          dest: /root/crypto-config-fsc-extend.yaml
+          src: ./templates/crypto-config-fsc-extend.yaml.j2
       when: 'inventory_hostname == "client0"'
 
     - name: Run cryptogen to extend fabric crypto material
-      shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config-extend.yaml
+      shell: PATH={{ dltDest }}/build/bin cryptogen extend --input=/root/crypto-config --config=/root/crypto-config-fsc-extend.yaml
       args:
         chdir: /root
       when: 'inventory_hostname == "client0"'

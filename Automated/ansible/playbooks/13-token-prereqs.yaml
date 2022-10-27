@@ -1,0 +1,7 @@
+#!/usr/bin/env ansible-playbook
+
+- hosts: client0
+  remote_user: root
+  tasks:
+    - name: Install tokengen cli
+      shell: go install github.com/hyperledger-labs/fabric-token-sdk/cmd/tokengen@latest

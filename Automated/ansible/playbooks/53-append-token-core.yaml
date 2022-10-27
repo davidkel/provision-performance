@@ -1,0 +1,18 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Update fsc core with token block
+  hosts: fsc
+  remote_user: root
+  roles:
+    - util/fscvars
+
+  tasks:
+    - name: do it
+      blockinfile:
+        dest: "/root/core.yaml"
+        block: "{{ lookup('template', './templates/token-core.yaml.j2') }}"
+      vars:
+          # eg lender|borrower|approver & fsc (first to convert 1 entry list to a single value)
+          # these templates run on the individual machines
+        __fscnode_role: '{{ group_names | difference("fsc") | first }}'
+        __fscnode_name: '{{ inventory_hostname }}'

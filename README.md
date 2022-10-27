@@ -23,3 +23,10 @@ See [Readme](Automated/README.md)
 
 This provides simple scripts to setup a Manager and set of workers as well as configure a single node hyperledger fabric you provide and is more of a manual configuration currently (Automation and multi node SUT to come later)
 See [Readme](BYOF/README.md)
+
+## Caliper & Caliper-Benchmarks
+
+Both the automated and BYOF systems make use of Caliper and Caliper Benchmarks as the load generator for Fabric. However the pre-canned benchmarks in Caliper Benchmarks will require manual tuning (until the environment can automate the running of these benchmarks with supplied options to modify the versions in caliper-benchmarks)
+
+The most interesting benchmark is the read-write asset benchmark but it has certain special requirements in order to run
+so please refer to https://github.com/hyperledger/caliper-benchmarks/blob/main/benchmarks/api/fabric/README.md for more information.

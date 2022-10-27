@@ -2,3 +2,6 @@ sut-network.yaml
 prometheus.yml
 .backup
 docker-images
+*-fyre.yaml
+*-testbed.yaml
+testcode/

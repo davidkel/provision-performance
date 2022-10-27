@@ -1,0 +1,47 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Create ordererOrgs and peerOrgs maps to be used for following plays
+  hosts: client0
+  remote_user: root
+
+  roles:
+    - util/orgvars
+
+- name: Generate crypto materials on the Client
+  # `hosts` could simply be client0, but thing is, we need ansible facts of other hosts
+  # specifically IP addresses of peers and orderers for generating crypto config.
+  # And ansible is being weird and not letting us access the facts unless the play is run for
+  # all hosts
+  hosts: client0
+  remote_user: root
+
+  roles:
+    - role: util/ensure_empty_folder
+      path: /root/crypto-config/token
+
+  tasks:
+    - name: generate crypto-config-token.yaml to create issuer and auditor organisations
+      template:
+          dest: /root/crypto-config-token.yaml
+          src: ./templates/crypto-config-token.yaml.j2
+
+    - name: Run cryptogen to generate token x509 crypto material
+      shell: PATH={{ dltDest }}/build/bin cryptogen generate --config=/root/crypto-config-token.yaml
+      args:
+        chdir: /root
+
+    - name: generate idemix ca and org map
+      shell: ./idemixgen ca-keygen --output /root/crypto-config/token/idemix/org --curve BN254
+      args:
+        chdir:  '/root/go/bin'
+
+    # TODO: Not required for issuer/auditor only owners (do we need another key ? do we need the idemix key at the role level ?)
+    - name: generate fabric client idemix identities for fsc nodes
+      vars:
+        idemix_nodes: "{{ hostvars | dict2items | selectattr('value.idemix', 'defined') | map(attribute='value.group_names') | list | flatten | difference('fsc')}}"
+
+      # TODO orgunit may need to be something better, do we need -r ?
+      shell: ./idemixgen signerconfig --ca-input /root/crypto-config/token/idemix/org --output /root/crypto-config/token/idemix/{{item}} -u {{item}} -e {{item}} --curve BN254
+      args:
+        chdir: /root/go/bin
+      loop: '{{idemix_nodes}}'

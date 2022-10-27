@@ -1,0 +1,26 @@
+#!/usr/bin/env ansible-playbook
+
+- hosts: client0
+  remote_user: root
+  tasks:
+    - name: generate PP from crypto material
+#     # note the path relies on the auditor role
+      shell: ~/go/bin/tokengen gen dlog -a /root/crypto-config/peerOrganizations/auditor/peers/auditor/msp -i /root/crypto-config/token/idemix/org/ -o /root
+      args:
+        chdir:  '/root/go/bin'
+    - name: extract Raw
+      shell: base64 --wrap=0 /root/zkatdlog_pp.json
+      register: result
+    - name: store result in a var
+      set_fact:
+        __pp: "{{ result.stdout }}"
+- hosts: peers
+  remote_user: root
+  tasks:
+    - name: retrieve client0 __pp
+      set_fact:
+        __pp: "{{hostvars['client0']['__pp']}}"
+    - name: modify params.go at {{chainDest}}{{chainPath}}/tcc/params.go
+      template:
+          dest: "{{chainDest}}{{chainPath}}/tcc/params.go"
+          src: ./templates/params.go.j2

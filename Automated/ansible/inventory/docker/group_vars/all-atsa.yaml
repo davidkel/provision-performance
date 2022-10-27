@@ -16,17 +16,17 @@ idemixRepo: https://github.com/IBM/idemix
 idemixBranch: main
 idemixDest: /root/idemix
 
-# checkout-and-build-fsc-nodes.yaml: fungible token fsc nodes
+# checkout-and-build-fsc-nodes.yaml: atsa fsc nodes
 fscRepo: https://github.com/davidkel/sandbox
 fscBranch: master
 fscDest: /root/fsc
-fscPath: /fungible
+fscPath: /atsa
 
-# checkout-chaincode: fungible chaincode
+# checkout-chaincode: atsa chaincode
 chainDest: '/root/fsc'
 chainRepo: https://github.com/davidkel/sandbox
 chainBranch: 'master'
-chainPath: /fungible/cc
+chainPath: /atsa/cc
 
 # run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
@@ -44,11 +44,11 @@ preferred_max_bytes: 512 KB
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
 # TODO: can only deploy 1 chaincode
-ccName: tcc
-ccVersion: 1.0.0
+ccName: asset_transfer
+ccVersion: 1.0.1
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
 ccPath: '{{ chainDest }}/{{ chainPath }}'
-endorsementPolicy: 'AND ("peerOrg1MSP.member")'  # issuer/auditor org
+endorsementPolicy: 'AND ("peerOrg2MSP.member")'  # approver org
 #TODO: may not support iou so need to be optional
 ccInitArgs: '{"Args": ["init"]}'
 ccQueryArgs: '{"Args": ["invoke"]}'

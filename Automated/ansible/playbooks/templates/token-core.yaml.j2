@@ -1,0 +1,38 @@
+
+
+token:
+  enabled: true
+  tms:
+  - certification: null
+    channel: {{channelIDs}}
+    namespace: {{ ccName }}
+    network: main
+    wallets:
+{% if __fscnode_role != "issuer" and __fscnode_role != "auditor" and __fscnode_role != "certifier" %}
+
+      owners:
+      - default: true
+        id: {{ __fscnode_role }}
+        path: /root/crypto-config/token/idemix/{{ __fscnode_role }}
+      - default: false
+        id: {{ __fscnode_role }}.id1
+        path: /root/crypto-config/token/idemix/{{ __fscnode_role }}.id1
+{% else %}
+
+      {{ __fscnode_role }}s:  # note the 's' at the end to pluralise the role
+      - default: true
+        id: {{ __fscnode_role }}
+        path: /root/crypto-config/peerOrganizations/{{ __fscnode_role }}/peers/{{ __fscnode_role }}/msp
+      - default: false
+        id: {{ __fscnode_role }}.id1
+        path: /root/crypto-config/peerOrganizations/{{ __fscnode_role }}/peers/{{ __fscnode_role }}.id1/msp
+{% endif %}
+
+
+
+
+  ttxdb:
+    persistence:
+      opts:
+        path: /root/{{ inventory_hostname }}/ttxdb
+      type: badger

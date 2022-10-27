@@ -11,5 +11,6 @@
         repo: '{{ chainRepo }}'
         version: '{{ chainBranch }}'
         update: yes
+        force: yes
 
 

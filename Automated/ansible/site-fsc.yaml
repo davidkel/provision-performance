@@ -17,7 +17,7 @@
 - import_playbook: playbooks/41-generate-crypto-fsc.yaml
   when: 'plays=="all" or ("genfsccrypto" in plays)'
 
-- import_playbook: playbooks/43-copy-crypto.yaml
+- import_playbook: playbooks/45-copy-crypto.yaml
   when: 'plays=="all" or ("copycrypto" in plays)'
 
 - import_playbook: playbooks/50-generate-channel.yaml

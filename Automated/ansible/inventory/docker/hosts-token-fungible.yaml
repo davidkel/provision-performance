@@ -1,0 +1,64 @@
+all:
+    children:
+        peers: # group name
+            children:
+                # this is the MSP id and represents an org
+                peerOrg0: # group name
+                    hosts:
+                        peer0: { ansible_host: peer0}
+                peerOrg1:
+                    hosts:
+                        peer1: { ansible_host: peer1 }
+
+        orderers:
+            children:
+                ordererOrg0:
+                    hosts:
+                        orderer0: { ansible_host: orderer0 }
+
+        clients:
+            hosts:
+                 client0: { ansible_host: client0 }
+                 client1: { ansible_host: client1 }
+
+        fsc:
+            children:
+                issuer:
+                    vars:
+                        owning_org: peerOrg0
+                        is_bootstrap: true
+                        idemix: true
+                    hosts:
+                        issuer0: { ansible_host: issuer0 }
+                alice:
+                    vars:
+                        owning_org: peerOrg1
+                        idemix: true
+                    hosts:
+                        alice0: { ansible_host: alice0 }
+                bob:
+                    vars:
+                        owning_org: peerOrg1
+                        idemix: true
+                    hosts:
+                        bob0: { ansible_host: bob0 }
+
+                charlie:
+                    vars:
+                        owning_org: peerOrg1
+                        idemix: true
+                    hosts:
+                        charlie0: { ansible_host: charlie0 }
+
+                auditor:
+                    vars:
+                        owning_org: peerOrg0
+                        idemix: true
+                    hosts:
+                        auditor0: { ansible_host: auditor0 }
+                client:
+                    vars:
+                        owning_org: peerOrg0
+                    hosts:
+                        client1: { ansible_host: client1 }
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 # TODO: Improve performance only build the needed binaries on each of the systems, not all systems
 
-- name: Checkout hyperledger fabric to the given branch and build
+- name: Checkout the fabric-smart-client or fabric-token application
   hosts: fsc
   remote_user: root
 
@@ -16,13 +16,13 @@
         version: '{{fscBranch}}'
         update: yes
 
-    - name: Remove the node binaries
+    - name: Remove existing fsc node binaries
       make:
         chdir: '{{ fscDest }}/{{ fscPath }}'
         target: 'clean'
 
     # TODO should only do the appropriate one for the node but will do all for now
-    - name: Build the appropriate node binary 
+    - name: Build the appropriate node binary
       make:
         chdir: '{{ fscDest }}/{{ fscPath }}'
         target: 'nodes'

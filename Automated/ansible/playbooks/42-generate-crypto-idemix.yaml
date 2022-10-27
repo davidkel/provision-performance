@@ -20,7 +20,7 @@
       path: /root/crypto-config/peerOrganizations/idemix
 
   tasks:
-    - name: generate idemix ca and org map
+    - name: generate idemix ca and org msp
       shell: ./idemixgen ca-keygen --output /root/crypto-config/peerOrganizations/idemix/org
       args:
         chdir:  '/root/go/bin'

@@ -1,0 +1,50 @@
+# TODO: Cheat as fabric cryptogen can't generate named Users
+# but we can generate named nodes which with disabled NodeOUs means we can't distinguish it between peer or client
+# TODO: we need a way to describe this in a topology
+PeerOrgs:
+  - Name: TokenIssuer
+    # Domain must match the fsc role as token-core.yaml will use fsc role to setup the path
+    Domain: issuer
+    EnableNodeOUs: false
+    Specs:
+      - Hostname: issuer
+        CommonName: issuer
+        SANS:
+          - issuer
+          - {{ hostvars['issuer0'].ansible_host }}
+          {% if hostvars['issuer0'].internal_addr is defined %}
+
+          - {{ hostvars['issuer0'].internal_addr }}
+          {% endif %}
+
+      - Hostname: issuer.id1
+        CommonName: issuer.id1
+        SANS:
+          - issuer
+          - {{ hostvars['issuer0'].ansible_host }}
+          {% if hostvars['issuer0'].internal_addr is defined %}
+
+          - {{ hostvars['issuer0'].internal_addr }}
+          {% endif %}
+
+    Users:
+      Count: 0
+
+  - Name: TokenAuditor
+    # Domain must match the fsc role as token-core.yaml will use fsc role to setup the path
+    Domain: auditor
+    EnableNodeOUs: false
+    Specs:
+      - Hostname: auditor
+        CommonName: auditor
+        SANS:
+          - auditor
+          - {{ hostvars['auditor0'].ansible_host }}
+          {% if hostvars['auditor0'].internal_addr is defined %}
+
+          - {{ hostvars['auditor0'].internal_addr }}
+          {% endif %}
+
+    Users:
+      Count: 0
+
