@@ -1,10 +1,10 @@
-## TODO
+# TODO
 
 - Fabric
   - support v2 lifecycle (Optional)
   - support couchdb (Optional)
   - support multiple chaincodes ? (ie can deploy more than 1 chaincode)
-  - is they way we clear out peers and orderers ok ?
+  - is the way we clear out peers and orderers ok ?
 - prom/graf
   - need to create separate dashboards for nodes/processes, fabric metrics, fsc metrics (I have node, process and fabric on a single page at the moment)
 - Workload

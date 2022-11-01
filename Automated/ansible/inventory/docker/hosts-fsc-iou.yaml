@@ -26,23 +26,23 @@ all:
 
         fsc:
             children:
-                lender:
+                lender: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg0
                     hosts:
                         lender0: { ansible_host: lender0 }
-                borrower:
+                borrower: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg1
                     hosts:
                         borrower0: { ansible_host: borrower0 }
-                approver:
+                approver: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg2
                         is_bootstrap: true
                     hosts:
                         approver0: { ansible_host: approver0 }
-                client:
+                client: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg0
                     hosts:

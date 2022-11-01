@@ -1,3 +1,5 @@
+# This creates a docker image with a lot of the pre-reqs already included so the ansible
+# scripts will go much quicker if you build and use this image.
 FROM ubuntu:20.04
 
 # Update and upgrade repo

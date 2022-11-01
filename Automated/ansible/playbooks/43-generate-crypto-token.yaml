@@ -1,5 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
+# TODO: Do we need to generate these facts on client0 for this playbook ? I don't think so
 - name: Create ordererOrgs and peerOrgs maps to be used for following plays
   hosts: client0
   remote_user: root

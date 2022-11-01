@@ -1,0 +1,96 @@
+# Variables that may need to be changed depending on what you want to achieve
+# TODO: Most of these are probably in the wrong place as they are currently inventory defined
+# of all but aren't relevant to the inventory
+# peers and orderers could be done on a conditional import so we don't have to have copy these
+# for each collection of inventory you might create.
+# may be able to move these to the playbooks/group_vars directory
+
+
+# checkout-and-build-fabric.yaml
+dltRepo: https://github.com/hyperledger/fabric
+dltBranch: main
+dltDest: /root/src/github.com/hyperledger/fabric
+
+# checkout-and-build-idemixgen.yaml
+idemixRepo: https://github.com/IBM/idemix
+idemixBranch: main
+idemixDest: /root/idemix
+
+# checkout-and-build-fsc-nodes.yaml: fungible token fsc nodes
+fscRepo: https://github.com/davidkel/sandbox
+fscBranch: master
+fscDest: /root/fsc
+fscPath: /fungible
+
+# checkout-chaincode: fungible chaincode
+chainDest: '/root/fsc'
+chainRepo: https://github.com/davidkel/sandbox
+chainBranch: 'master'
+chainPath: /fungible/cc
+
+# run-caliper-benchmarks
+benchDest: '/root/caliper-benchmarks'
+benchRepo: https://github.com/hyperledger/caliper-benchmarks
+benchBranch: 'main'
+
+# generate-channel.yaml
+channelIDs: ch1 # comma separated string of channel names (e.g. ch1,ch2,ch3)
+channelPeerAlloc: all # defaults to all, but can be set as a dict from channelName to a list of peers belonging to that channel
+channelOrdererAlloc: all # defaults to all, but can be set as a dict from channelName to a list of orderers belonging to that channel
+block_cut_time: 1s
+block_size: 50
+preferred_max_bytes: 512 KB
+
+# lscc-deploy-chaincode.yaml
+# channelIDs: ch1  -- not writing because already defined above.
+# TODO: can only deploy 1 chaincode
+ccName: tcc
+ccVersion: 1.0.0
+# has to be available on the peer (what is the path relative to ?) and is pre-vendored
+ccPath: '{{ chainDest }}/{{ chainPath }}'
+endorsementPolicy: 'AND ("peerOrg1MSP.member")'  # issuer/auditor org
+#TODO: may not support iou so need to be optional
+ccInitArgs: '{"Args": ["init"]}'
+ccQueryArgs: '{"Args": ["invoke"]}'
+
+# restart-nodes
+enable_fabric_profile: false
+gateway_request_limit: 20000
+orderer_sendbuffersize: 1000
+
+# Resource control
+peerActiveCPUs: "{{ ansible_processor_vcpus | int }}"
+peerTotalCPUs: 2
+ordererActiveCPUs: "{{ ansible_processor_vcpus | int }}"
+ordererTotalCPUs: 2
+
+# TODO: Could replace this with Ansible Tags
+# Defaults when launching site.yaml without the -e "plays=..." option
+# the default is to get the latest fabric and benchmark code and restart fabric
+
+plays:
+  # - docker
+  # - prereqs
+  # - deployprom
+  - checkoutfabric
+  - checkoutbench
+  # - gencrypto
+  # - caliper
+  # - genchan
+  - restartnodes
+  - createchan
+  - createanch
+  - deploycc
+
+###############################################################
+# WARNING: Don't mess with any of the following.
+###############################################################
+ansible_python_interpreter: python3
+ansible_connection: docker
+
+channelIDsList: "{{ channelIDs.split(',') }}"
+orderers: '{{ groups["orderers"] }}'
+peers: '{{ groups["peers"] }}'
+clients: '{{ groups["clients"] }}'
+
+fabric_cfg_path: '/{{ dltDest }}/sampleconfig'

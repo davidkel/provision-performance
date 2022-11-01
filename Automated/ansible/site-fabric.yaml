@@ -1,0 +1,45 @@
+#!/usr/bin/env ansible-playbook
+
+# Example playbook runner to stand up a fabric platform for docker
+# it still contains the ability to control each play but
+# usually always use the -e "plays=all"
+
+- import_playbook: playbooks/5-docker-prereqs.yaml
+  when: 'plays=="all" or ("docker" in plays)'
+
+- import_playbook: playbooks/10-common-prereqs.yaml
+  when: 'plays=="all" or ("prereqs" in plays)'
+
+- import_playbook: playbooks/15-deploy-prometheus.yaml
+  when: 'plays=="all" or ("deployprom" in plays)'
+
+- import_playbook: playbooks/20-checkout-and-build-fabric.yaml
+  when: 'plays=="all" or ("checkoutfabric" in plays)'
+
+- import_playbook: playbooks/30-checkout-chaincode.yaml
+  when: 'plays=="all" or ("checkoutchain" in plays)'
+
+- import_playbook: playbooks/40-generate-crypto-fabric.yaml
+  when: 'plays=="all" or ("gencrypto" in plays)'
+
+- import_playbook: playbooks/45-copy-crypto.yaml
+  when: 'plays=="all" or ("copycrypto" in plays)'
+
+- import_playbook: playbooks/47-deploy-caliper.yaml
+  when: 'plays=="all" or ("caliper" in plays)'
+
+- import_playbook: playbooks/50-generate-channel.yaml
+  when: 'plays=="all" or ("genchan" in plays)'
+
+- import_playbook: playbooks/55-restart-fabric-nodes.yaml
+  when: 'plays=="all" or ("restartnodes" in plays)'
+
+- import_playbook: playbooks/60-create-channels.yaml
+  when: 'plays=="all" or ("createchan" in plays)'
+
+- import_playbook: playbooks/65-create-anchors.yaml
+  when: 'plays=="all" or ("createanch" in plays)'
+
+- import_playbook: playbooks/70-lscc-deploy-chaincode.yaml
+  when: 'plays=="all" or ("deploycc" in plays)'
+

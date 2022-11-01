@@ -7,7 +7,7 @@ RUN apt-get update -y -q && \
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
-# Install docker
+# Install docker (required for controller to integrate with docker simulated VMs)
 RUN apt-get install -y \
     apt-transport-https \
     ca-certificates \

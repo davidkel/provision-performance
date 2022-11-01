@@ -23,6 +23,7 @@ client0 should be used for load generation orchestration (eg running caliper man
 **IMPORTANT: This system relies on being able to login as root currently. Some environments (eg multipass vms) won't work out of the box because they disable direct logging in as root.**
 
 ### how to enable multipass VMs
+
 You need to enable ssh login using root as follows:
 
 create your vms, then shell into each and `sudo nano /etc/ssh/sshd_config`
@@ -116,20 +117,37 @@ In the original client0 shell
 
 ## Deploying to Local Docker Containers
 
-- In the ansible directory, edit `ansible.cfg` and ensure that the default inventory file is set to the vm directory
+- In the ansible directory, edit `ansible.cfg` and ensure that the default inventory file is set to an appropriate host file in the `docker` directory
 
 ```yaml
-inventory = ./inventory/docker/hosts.yaml
-#inventory = ./inventory/vm/hosts.yaml
+inventory = ./inventory/docker/hosts-fabric.yaml
+#inventory = ./inventory/vm/hosts-fabric.yaml
 ```
 
 - cd Automated/provision-vms/docker
 - build the controller docker image: docker build -f Dockerfile.controller -t controller:latest
+- build the prepared machine docker image: docker build -f Dockerfile.prepmac -t prepmac:latest
 - docker-compose up -d
 - docker exec -it controller /bin/bash
 - cd /ansible
-- ./site.yaml -e "plays=all"
+- ./site.yaml
 - optionally start the monitors and observing services
+
+The prepmac image isn't mandatory but all the docker-compose files reference it because it builds an image which contains a lot of the pre-reqs already installed making running of the ansible scripts faster. It will still work if you specify a base Ubuntu image in the docker compose file. It's not forced because it helps to test within docker a VM environment where the VM image will not have some of the base components installed.
+
+If you want to use the site.yaml to start one of the iou, atsa fungible samples, then you can specify a play of 'iou', 'atsa', 'fungible' eg
+
+```shell
+./site.yaml -e "plays=fungible"
+```
+
+You should also make sure you use the correct group_vars/all file from the example group vars folder as it ensures getting the correct chaincode and fsc node source to build and create the fsc nodes for the example.
+
+In summary the following needs to be checked
+
+1. you have the appropriate all.yaml file in group_vars for the system you want to run
+2. you have the appropriate inventory file specified in ansible.cfg for the system you want to run
+3. you provision the appropriate environment that matches that inventory file (for docker use the appropriate docker-compose file)
 
 ### starting/stopping the node/process monitors for docker
 

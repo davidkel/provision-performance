@@ -3,7 +3,8 @@ services:
   # peers
   peer0: &base
     container_name: peer0
-    image: ubuntu:20.04
+    image: prepmac:latest
+    # image: ubuntu:20.04
     # build: .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

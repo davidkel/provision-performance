@@ -23,40 +23,38 @@ all:
 
         fsc:
             children:
-                issuer:
+                issuer: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg0
                         is_bootstrap: true
                         idemix: true
                     hosts:
                         issuer0: { ansible_host: issuer0 }
-                alice:
+                alice: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg1
                         idemix: true
                     hosts:
                         alice0: { ansible_host: alice0 }
-                bob:
+                bob: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg1
                         idemix: true
                     hosts:
                         bob0: { ansible_host: bob0 }
-
-                charlie:
+                charlie: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg1
                         idemix: true
                     hosts:
                         charlie0: { ansible_host: charlie0 }
-
-                auditor:
+                auditor: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg0
                         idemix: true
                     hosts:
                         auditor0: { ansible_host: auditor0 }
-                client:
+                client: # defines the role name and must have a make target
                     vars:
                         owning_org: peerOrg0
                     hosts:

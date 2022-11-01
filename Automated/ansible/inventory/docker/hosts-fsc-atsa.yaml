@@ -26,31 +26,31 @@ all:
 
         fsc:
             children:
-                issuer:
+                issuer: # role name, must have a make target
                     vars:
                         owning_org: peerOrg0
                     hosts:
                         issuer0: { ansible_host: issuer0 }
-                alice:
+                alice: # role name, must have a make target
                     vars:
                         owning_org: peerOrg1
                         idemix: true
                     hosts:
                         alice0: { ansible_host: alice0 }
-                bob:
+                bob: # role name, must have a make target
                     vars:
                         owning_org: peerOrg1
                         idemix: true
                     hosts:
                         bob0: { ansible_host: bob0 }
 
-                approver:
+                approver: # role name, must have a make target
                     vars:
                         owning_org: peerOrg2
                         is_bootstrap: true
                     hosts:
                         approver0: { ansible_host: approver0 }
-                client:
+                client: # role name, must have a make target
                     vars:
                         owning_org: peerOrg0
                     hosts:

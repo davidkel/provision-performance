@@ -6,7 +6,7 @@
   remote_user: root
 
   vars:
-    target: '{{ "orderer" if "orderers" in group_names else "peer" }}' # == 'peer' if it's client as well.
+    __fscnode_role: '{{ group_names | difference("fsc") | first }}'
 
   tasks:
     - name: Checkout to the {{fscBranch}} branch
@@ -21,11 +21,11 @@
         chdir: '{{ fscDest }}/{{ fscPath }}'
         target: 'clean'
 
-    # TODO should only do the appropriate one for the node but will do all for now
     - name: Build the appropriate node binary
       make:
         chdir: '{{ fscDest }}/{{ fscPath }}'
-        target: 'nodes'
+#        target: 'nodes'
+        target: '{{ __fscnode_role }}'
 
 
 

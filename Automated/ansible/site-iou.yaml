@@ -1,4 +1,9 @@
 #!/usr/bin/env ansible-playbook
+
+# Example playbook runner to stand up iou platform
+# it still contains the ability to control each play but
+# usually always use the -e "plays=all"
+
 - import_playbook: playbooks/10-common-prereqs.yaml
   when: 'plays=="all" or ("prereqs" in plays)'
 
