@@ -1,4 +1,6 @@
-# Automated performance platform deployment of native Fabric
+
+
+# Automated performance platform deployment of native Fabric/fabric smart client nodes
 
 This is a set of ansible scripts that deploy a fabric network natively to a set of VMs/Bare Metal Servers. Currently it is expected that all peers and orderers run on separate VMs, you cannot have more than 1 fabric node (peer/orderer) running in the same VM.
 
@@ -8,6 +10,19 @@ It supports deployment to 2 separate enviroments
 2. VMs/Bare Metal Servers
 
 The docker environment exists primarily to test the ansible script implementation however there are differences between the 2 environments which means that you cannot use the ansible scripts to start/stop the prometheus/grafana/mosquitto services. Further details will be provided later on this.
+
+## Ansible configuration files
+
+Various files control the ansible configuration
+
+- ansible.cfg: mainly used to provide the default hosts file to use when one is not explicitly provided.
+- inventory/docker/group_vars/all.yaml: provides the configuration for a specific ansible deployment using a docker provisioned system, eg where to get fabric from, fsc code from, chaincode from plus configuration parameters to tune fabric nodes
+- inventory/vm/group_vars/all.yaml: is the vm equivalent of the above
+- inventory/docker/example/group_vars: containers example all.yaml files for different deployments.
+
+The repo is currenly configured with docker/all.yaml, ansible.cfg to target a docker provisioned environment for the token sdk fungible sample.
+
+For a step by step guide in bringing up the fungible sample see [Fungible Sample](./FUNGIBLE.md)
 
 ## The different types of nodes within the system
 
