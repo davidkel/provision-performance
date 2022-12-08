@@ -8,25 +8,14 @@
 
 # checkout-and-build-fabric.yaml
 dltRepo: https://github.com/hyperledger/fabric
-dltBranch: main
+dltBranch: release-2.5
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-and-build-idemixgen.yaml
-idemixRepo: https://github.com/IBM/idemix
-idemixBranch: main
-idemixDest: /root/idemix
-
-# checkout-and-build-fsc-nodes.yaml: fungible token fsc nodes
-fscRepo: https://github.com/davidkel/sandbox
-fscBranch: master
-fscDest: /root/fsc
-fscPath: /fungible
-
-# checkout-chaincode: fungible chaincode
-chainDest: '/root/fsc'
-chainRepo: https://github.com/davidkel/sandbox
-chainBranch: 'master'
-chainPath: /fungible/cc
+# checkout-chaincode: caliper fixed-asset chaincode
+chainDest: '/root/caliper-benchmarks'
+chainRepo: https://github.com/hyperledger/caliper-benchmarks
+chainBranch: 'main'
+chainPath: src/fabric/api/fixed-asset-base/go
 
 # run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
@@ -44,14 +33,13 @@ preferred_max_bytes: 512 KB
 # lscc-deploy-chaincode.yaml
 # channelIDs: ch1  -- not writing because already defined above.
 # TODO: can only deploy 1 chaincode
-ccName: tcc
+ccName: fixed-asset
 ccVersion: 1.0.0
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
 ccPath: '{{ chainDest }}/{{ chainPath }}'
-endorsementPolicy: 'AND ("peerOrg1MSP.member")'  # issuer/auditor org
-#TODO: may not support iou so need to be optional
+endorsementPolicy: 'OR ("peerOrg0MSP.member","peerOrg1MSP.member")'
 ccInitArgs: '{"Args": ["init"]}'
-ccQueryArgs: '{"Args": ["invoke"]}'
+ccQueryArgs: '{"Args": ["emptycontract"]}'
 
 # restart-nodes
 enable_fabric_profile: false
@@ -69,7 +57,7 @@ ordererTotalCPUs: 2
 # the default is to get the latest fabric and benchmark code and restart fabric
 
 plays:
-  # - docker
+  # - vm
   # - prereqs
   # - deployprom
   - checkoutfabric

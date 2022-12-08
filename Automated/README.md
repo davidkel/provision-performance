@@ -67,10 +67,16 @@ docker build -f ansible/provision-vms/docker/Dockerfile.controller -t controller
 docker run -it --name controller --rm -v $PWD/ansible:/ansible controller:latest /bin/bash
 ```
 
-- change to the ansible directory
-- run `ssh-keygen -t rsa -b 2048` to generate a local ssh key pair if you haven't done this already (or you are using the controller docker container)
+#### SSH Keys
+you will want to have an SSH key installed to the remote systems so you don't have to use password authentication, if you use the controller container you need to ensure you either copy an ssh key into it (use the ansible directory as a way to do this) from your system (previously generated) or you can create one inside the container and copy it out (again via the ansible directory) otherwise you will lose your installed key if you destroy the container and will need to create it again.
+To generate a keypair:
+
+- run `ssh-keygen -t rsa -b 2048`
+
+#### Further steps
 - run `apt install -y sshpass`
-- run `ANSIBLE_HOST_KEY_CHECKING=False ./site-vm.yaml -e plays="all"` to perform an initial deploy and run
+- change to the ansible directory `cd /ansible`
+- run `ANSIBLE_HOST_KEY_CHECKING=False ./site-fabric-vm.yaml -e plays="ssh,deployprom,caliper"` to perform an initial deploy and run which will deploy caliper
 
 - Optionally bring up the monitoring and observing processes (see next sections)
 - Optionally run a caliper performance benchmark
@@ -122,7 +128,7 @@ prometheus is available on the client0 machine port 9090
 
 Also you could use remote workers (ensure you have started the servers as it starts mosquitto needed for remote workers)
 
-- ssh into another client0 shell
+- ssh into another client shell (eg client0, client1 etc)
 - cd ~/Worker
 - ./launch-workers.sh -w 2 -i client0:1883
 

@@ -11,10 +11,16 @@ dltRepo: https://github.com/hyperledger/fabric
 dltBranch: main
 dltDest: /root/src/github.com/hyperledger/fabric
 
-# checkout-benchmarks
+# checkout-chaincode: caliper fixed-asset chaincode
+chainDest: '/root/caliper-benchmarks'
+chainRepo: https://github.com/hyperledger/caliper-benchmarks
+chainBranch: 'main'
+chainPath: src/fabric/api/fixed-asset-base/go
+
+# run-caliper-benchmarks
 benchDest: '/root/caliper-benchmarks'
-benchRepo: https://github.com/davidkel/caliper-benchmarks
-benchBranch: 'fixreadwrite'
+benchRepo: https://github.com/hyperledger/caliper-benchmarks
+benchBranch: 'main'
 
 # generate-channel.yaml
 channelIDs: ch1 # comma separated string of channel names (e.g. ch1,ch2,ch3)
@@ -30,7 +36,7 @@ preferred_max_bytes: 512 KB
 ccName: fixed-asset
 ccVersion: 1.0.0
 # has to be available on the peer (what is the path relative to ?) and is pre-vendored
-ccPath: '{{ benchDest }}/src/fabric/api/fixed-asset-base/go'
+ccPath: '{{ chainDest }}/{{ chainPath }}'
 endorsementPolicy: 'OR ("peerOrg0MSP.member","peerOrg1MSP.member")'
 ccInitArgs: '{"Args": ["init"]}'
 ccQueryArgs: '{"Args": ["emptycontract"]}'
@@ -68,6 +74,7 @@ plays:
 # WARNING: Don't mess with any of the following.
 ###############################################################
 ansible_python_interpreter: python3
+ansible_connection: docker
 
 channelIDsList: "{{ channelIDs.split(',') }}"
 orderers: '{{ groups["orderers"] }}'
