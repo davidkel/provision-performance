@@ -5,7 +5,7 @@ FROM ubuntu:20.04
 # Update and upgrade repo
 RUN apt-get update -y -q && \
     # apt-get upgrade -y -q && \
-    apt-get install -y python python3-pip vim nano zip gpg ca-certificates git build-essential iftop nmap netcat nmon htop tmux iotop jq
+    apt-get install -y python3 python3-pip vim nano zip gpg ca-certificates git build-essential iftop nmap netcat nmon htop tmux iotop jq
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
@@ -35,4 +35,6 @@ RUN add-apt-repository "deb [arch=amd64] https://deb.nodesource.com/node_14.x $(
 RUN apt-get -y update
 RUN apt install -y nodejs
 
+# install docker support for python (only needed for client0)
+RUN pip install docker
 # Missing: Node Exporter, Process Exporter

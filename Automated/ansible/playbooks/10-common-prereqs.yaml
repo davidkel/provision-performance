@@ -69,7 +69,7 @@
         state: directory
         mode: '0755'
         recurse: yes
-        
+
     - name: Download prometheus node exporter
       unarchive:
         src: "https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz"
@@ -117,4 +117,11 @@
       apt:
        name: jq
        state: present
+
+# required to pull and run docker images on client0
+- name: Install docker_pip on client0
+  hosts: client0
+  remote_user: root
+  roles:
+    - pkgs/docker_pip
 
