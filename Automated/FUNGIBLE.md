@@ -15,7 +15,7 @@ docker build -f Dockerfile.prepmac -t prepmac:latest .
 
 docker-compose -f docker-compose-fungible.yaml up -d
 
-```
+```bash
 running docker compose with -f docker-compose-fungible.yaml up -d
 [+] Running 12/12
  ⠿ Network docker_default  Created                                                                                                                 0.1s
@@ -32,18 +32,21 @@ running docker compose with -f docker-compose-fungible.yaml up -d
  ⠿ Container client0       Started                                                                                                                 1.5s
  ```
 
- ## Run the ansible playbooks for fungible
+## Run the ansible playbooks for fungible
 
  This will build fabric from main and prepare everything for the fungible application but will not start the fsc nodes. Note also that `ansible.cfg` is currently configured to use `inventory = ./inventory/docker/hosts-token-fungible.yaml` which is a hosts file that specifically defines the topology of the docker containers that will host the application as well as the fabric/fsc topology in general.
 
  The site.yaml file does not call either 5-docker-prereqs.yaml or 5-vm-prereqs.yaml as it assumes currently a docker environment with prepmac image being used. site.yaml also doesn't provision the prometheus/grafana environment. This requires manual handling when using docker containers as VMs because it uses the docker images of prometheus and grafana which then has volume mount issues for this environment. See the README.md for more details
+
+ copy ansible/docker/example_group_vars/all-fungible.yaml to ansible/docker/group_vars/all.yaml
 
  docker exec -it controller /bin/bash
  cd /ansible
 ./site.yaml -e plays="fungible"
 
 Do not worry about these messages
-```
+
+```bash
 TASK [Query chaincode] *********************************************************************************************************************************
 FAILED - RETRYING: Query chaincode (5 retries left).
 FAILED - RETRYING: Query chaincode (5 retries left).
@@ -86,6 +89,7 @@ cd /root/fsc/fungible/cmd/<node-role>/
 ```
 
 so for example to get the issuer up and running
+
 ```bash
 docker exec -it issuer0 /bin/bash
 export FSCNODE_CFG_PATH=/root
@@ -93,12 +97,8 @@ cd /root/fsc/fungible/cmd/issuer/
 ./issuer node start
 ```
 
-
-
-## register the auditor
-
-
 ## To run a client request
+
 docker exec -it client1 /bin/bash
 
 ### Register the auditor
