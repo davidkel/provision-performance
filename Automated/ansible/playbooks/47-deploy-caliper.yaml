@@ -1,10 +1,17 @@
 #!/usr/bin/env ansible-playbook
 
-# TODO: This will have a pre-req of caliper-benchmarks deployed already (25-checkout-benchmarks), is there a better way to do this ? do 2 separate checkouts
-# 1 here for the benchmark support and another for the chaincode deployment means this can run as a standalone playbook. The only issue will be getting
-# access to the required certs for sut_network file generation
+- name: Checkout caliper benchmarks
+  hosts: clients
+  remote_user: root
 
-# TODO: currently clients, may want to be more explicit (ie not call these clients) in future
+  tasks:
+    - name: Checkout to the {{ benchBranch }} branch
+      git:
+        dest: '{{ benchDest }}'
+        repo: '{{ benchRepo }}'
+        version: '{{ benchBranch }}'
+        update: yes
+
 - name: Deploy caliper to clients
   remote_user: root
   hosts: clients
