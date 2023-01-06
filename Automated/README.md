@@ -130,7 +130,7 @@ Also you could use remote workers (ensure you have started the servers as it sta
 
 - ssh into another client shell (eg client0, client1 etc)
 - cd ~/Worker
-- ./launch-workers.sh -w 2 -i client0:1883
+- ./launch-workers.sh -w 2 -i client0
 
 In the original client0 shell
 
@@ -215,7 +215,7 @@ Also you can use remote workers (which we will simulate on client0, but could be
 
 - docker exec -it client0 /bin/bash
 - cd ~/Worker
-- ./launch-workers.sh -w 2 -i mqtt:1883
+- ./launch-workers.sh -w 2 -i mqtt
 
 on the original client0 shell
 
